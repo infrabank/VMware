@@ -2,6 +2,138 @@
 
 > Source: [Broadcom Security Advisories](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories), [CISA KEV Catalog](https://www.cisa.gov/known-exploited-vulnerabilities-catalog)
 
+## Critical Advisories (2021-2023)
+
+### VMSA-2021-0002 (2021-02) — ACTIVELY EXPLOITED (ESXiArgs 2023)
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2021-21974 | 8.8 | ESXi 7.0, 6.7, 6.5 | OpenSLP heap overflow → unauthenticated RCE (port 427) | **YES** |
+
+**Fix**: ESXi 7.0 U1c (17325551), ESXi670-202102401-SG, ESXi650-202102101-SG
+- Exploited massively in ESXiArgs ransomware campaign (2023-02-03)
+- **Immediate mitigation**: `/etc/init.d/slpd stop && chkconfig slpd off`
+
+> **Reference**: [VMSA-2021-0002](https://www.vmware.com/security/advisories/VMSA-2021-0002.html)
+
+---
+
+### VMSA-2021-0010 (2021-05) — ACTIVELY EXPLOITED
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2021-21985 | 9.8 | vCenter Server 7.0, 6.7, 6.5 | vSAN Health Check plugin RCE (unauthenticated) | **YES** |
+| CVE-2021-21986 | 6.5 | vCenter Server 7.0, 6.7, 6.5 | vSphere Client auth mechanism flaw | - |
+
+**Fix**: vCenter 7.0 U2b (17958471), vCenter 6.7 U3n (17994927), vCenter 6.5 U3p
+- Exploited within hours of disclosure; mass scanning began immediately
+- **Immediate mitigation**: Disable vSAN Health Check plugin in vSphere Client > Administration > Solutions > Client Plugins
+
+> **Reference**: [VMSA-2021-0010](https://www.vmware.com/security/advisories/VMSA-2021-0010.html)
+
+---
+
+### VMSA-2021-0020 (2021-09) — ACTIVELY EXPLOITED
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2021-22005 | 9.8 | vCenter Server 7.0, 6.7 | Analytics service arbitrary file upload → RCE | **YES** |
+
+**Fix**: vCenter 7.0 U3a (18356165), vCenter 6.7 U3o (18485166)
+- Exploited within 24 hours of disclosure
+- **Immediate mitigation**: Run VMware-provided workaround script (KB 85717): `python /usr/lib/vmware-analytics/scripts/CVE-2021-22005-WORKAROUND.py --enable`
+
+> **Reference**: [VMSA-2021-0020](https://www.vmware.com/security/advisories/VMSA-2021-0020.html)
+
+---
+
+### VMSA-2021-0028 (2021-12) — Log4Shell — ACTIVELY EXPLOITED
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2021-44228 | 10.0 | vCenter Server 7.0, 6.7, 6.5; vRealize products | Log4j JNDI injection → RCE | **YES** |
+| CVE-2021-45046 | 9.0 | vCenter Server 7.0, 6.7, 6.5 | Log4j bypass of CVE-2021-44228 fix | **YES** |
+
+**Fix**: vCenter 7.0 U3c (19480866), vCenter 6.7 U3o, vCenter 6.5 U3t
+- **Immediate mitigation**: Run `python vc_log4j_mitigator.py` (KB 87081)
+
+> **Reference**: [VMSA-2021-0028](https://www.vmware.com/security/advisories/VMSA-2021-0028.html)
+
+---
+
+### VMSA-2022-0004 (2022-01)
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2021-22045 | 8.4 | ESXi 7.0 U1–U2, 6.7.x | OpenSLP heap overflow (second SLP vuln) | Limited |
+
+**Fix**: ESXi 7.0 U3c (19193900)
+- **Mitigation**: Same as VMSA-2021-0002 — disable slpd service
+
+> **Reference**: [VMSA-2022-0004](https://www.vmware.com/security/advisories/VMSA-2022-0004.html)
+
+---
+
+### VMSA-2022-0011 (2022-04) — ACTIVELY EXPLOITED
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2022-22954 | 9.8 | Workspace ONE Access, Identity Manager, vRealize Automation | Server-Side Template Injection → unauthenticated RCE | **YES** |
+| CVE-2022-22955 | 9.8 | Workspace ONE Access | OAuth2 ACS auth bypass | - |
+| CVE-2022-22956 | 9.8 | Workspace ONE Access | OAuth2 ACS auth bypass | - |
+| CVE-2022-22957 | 9.1 | Workspace ONE Access, Identity Manager, vRealize Automation | JDBC deserialization RCE | - |
+| CVE-2022-22958 | 9.1 | Workspace ONE Access, Identity Manager, vRealize Automation | JDBC deserialization RCE | - |
+| CVE-2022-22959 | 8.8 | Workspace ONE Access, Identity Manager, vRealize Automation | CSRF | - |
+| CVE-2022-22960 | 7.8 | Workspace ONE Access, Identity Manager, vRealize Automation | Local privilege escalation | - |
+
+**Fix**: Workspace ONE Access 21.08.0.1, Identity Manager 3.3.6, vRealize Automation 7.6 patch
+- Exploited within 48 hours of disclosure
+- **Mitigation**: Block external access to management interface at network perimeter
+
+> **Reference**: [VMSA-2022-0011](https://www.vmware.com/security/advisories/VMSA-2022-0011.html)
+
+---
+
+### VMSA-2023-0001 (2023-01)
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2022-31703 | 9.8 | vRealize Log Insight < 8.10.2 | Directory traversal → unauthenticated RCE | - |
+| CVE-2022-31704 | 9.8 | vRealize Log Insight < 8.10.2 | Broken access control → unauthenticated RCE | - |
+| CVE-2022-31706 | 9.8 | vRealize Log Insight < 8.10.2 | Directory traversal | - |
+| CVE-2022-31711 | 5.3 | vRealize Log Insight < 8.10.2 | Information disclosure | - |
+
+**Fix**: vRealize Log Insight 8.10.2
+- **Mitigation**: Block external access to ports 9000, 9543
+
+> **Reference**: [VMSA-2023-0001](https://www.vmware.com/security/advisories/VMSA-2023-0001.html)
+
+---
+
+### VMSA-2023-0014 (2023-06)
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2023-20892 | 8.1 | vCenter Server 7.0, 8.0 | DCERPC heap-overflow | - |
+| CVE-2023-20893 | 8.1 | vCenter Server 7.0, 8.0 | DCERPC use-after-free | - |
+| CVE-2023-20894 | 8.2 | vCenter Server 7.0, 8.0 | DCERPC out-of-bounds write | - |
+| CVE-2023-20895 | 8.1 | vCenter Server 7.0, 8.0 | DCERPC memory corruption | - |
+| CVE-2023-20896 | 5.9 | vCenter Server 7.0, 8.0 | DCERPC out-of-bounds read | - |
+
+**Fix**: vCenter 7.0 U3m (21784236), vCenter 8.0 U1b (21815093)
+- **Mitigation**: Block DCERPC ports 2012, 2014, 2020 at perimeter firewall
+
+> **Reference**: [VMSA-2023-0014](https://www.vmware.com/security/advisories/VMSA-2023-0014.html)
+
+---
+
+### VMSA-2023-0023 (2023-10) — ACTIVELY EXPLOITED
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2023-34048 | 9.8 | vCenter Server 7.0, 8.0 | DCERPC out-of-bounds write → pre-auth RCE | **YES** |
+| CVE-2023-34056 | 4.3 | vCenter Server 7.0, 8.0 | Partial information disclosure | - |
+
+**Fix**: vCenter 7.0 U3o (22357613), vCenter 8.0 U2 (22385739)
+- Exploited by APT groups in late 2023 – early 2024
+- No official workaround — **patch immediately**
+- **Network mitigation**: Restrict ports 443, 8443, 2012, 2014, 2020 to management IPs only
+
+> **Reference**: [VMSA-2023-0023](https://www.vmware.com/security/advisories/VMSA-2023-0023.html)
+
+---
+
 ## Critical Advisories (2024-2025)
 
 ### VMSA-2025-0013 (2025-07)

@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a VMware vSphere 7.0 offline knowledge base — a documentation-only repository with no build system, tests, or application code. It contains ~9000 lines of troubleshooting guides, security advisories, build number mappings, and operational procedures used for enterprise VMware support.
+This is a VMware vSphere 7.0 offline knowledge base — a documentation-only repository with no build system, tests, or application code. It contains ~9000 lines of troubleshooting guides, security advisories, build number mappings, and operational procedures used for enterprise VMware support. NSX-T operations, DFW, and IaC automation are also covered.
 
 **Bilingual**: Content is in English and Korean. Maintain both languages when updating KB entries.
 
 ## Repository Structure
 
-- `docs/kb/` — 19 modular knowledge base documents, each covering a specific VMware domain (storage, networking, certificates, security hardening, performance tuning, PowerCLI, backup/DR, VMware Tools, AIOps automation, etc.). These are the primary reference material. Always read the relevant KB document before providing detailed procedures.
+- `docs/kb/` — 20 modular knowledge base documents, each covering a specific VMware domain (storage, networking, certificates, security hardening, performance tuning, PowerCLI, backup/DR, VMware Tools, AIOps automation, NSX-T networking, etc.). These are the primary reference material. Always read the relevant KB document before providing detailed procedures.
 - `docs/procedures/` — Step-by-step operational runbooks for specific maintenance tasks (e.g., security patching). These are pre-validated, deployment-ready procedures with timelines and rollback plans.
 - `CLAUDE.md` — This file. Contains both behavioral rules and the KB document index. Must be updated when new KB documents are created.
 
@@ -197,7 +197,8 @@ When answering questions, consult the detailed troubleshooting guides in `docs/k
 | `performance-tuning.md` | esxtop reference (CPU/Memory/Storage/Network screens), %RDY/%CSTP/DAVG/KAVG thresholds, NUMA/HT/power management, memory reclamation, queue depth, SIOC, NIOC, VM sizing (PVSCSI/VMXNET3), vmkfstools, diagnostics workflows |
 | `backup-disaster-recovery.md` | VADP, CBT, snapshot-based backup, vCenter VAMI backup, vSphere Replication, SRM basics, Veeam/Commvault integration issues, recovery procedures |
 | `vmware-tools-management.md` | VMware Tools version compatibility, installation (Windows/Linux), open-vm-tools, PVSCSI/VMXNET3 drivers, Guest OS Customization, quiescing (VSS/pre-freeze), troubleshooting, vLCM Tools management |
-| `common-kb-articles.md` | Curated VMware KB article index (build ref, certs, host, VM, storage, network, vLCM, patching, HA/DRS, backup/DR, VMware Tools, AIOps, PowerCLI) |
+| `nsx-troubleshooting.md` | NSX-T architecture, API authentication (Basic/Cert/vIDM), DFW backup/restore/per-VM rules/stats, VM tag management, LB cert replacement, transport node troubleshooting, TEP/tunnel diagnostics, Terraform/Ansible IaC patterns |
+| `common-kb-articles.md` | Curated VMware KB article index (build ref, certs, host, VM, storage, network, vLCM, patching, HA/DRS, backup/DR, VMware Tools, AIOps, PowerCLI, NSX-T) |
 
 Use these documents as reference material when formulating answers. Read the relevant KB document before providing detailed procedures.
 
