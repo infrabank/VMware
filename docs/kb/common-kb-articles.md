@@ -175,6 +175,65 @@
 
 ---
 
+## AIOps & Automation
+
+| Source | Title | Use Case |
+|--------|-------|----------|
+| [VMware-AIops (GitHub)](https://github.com/zw008/VMware-AIops) | AI-powered VMware vCenter/ESXi monitoring & operations | pyVmomi 기반 AIOps 자동화 전체 참조 |
+| [pyVmomi](https://github.com/vmware/pyvmomi) | VMware vSphere API Python Bindings | vSphere SOAP API Python 연동 |
+| [vSphere Web Services API](https://developer.broadcom.com/xapis/vsphere-web-services-api/latest/) | vSphere Web Services SDK Reference | pyVmomi API 객체 및 메서드 레퍼런스 |
+| [vSAN Management SDK](https://developer.broadcom.com/sdks/vsan-management-sdk-for-python/latest/) | vSAN Management SDK for Python | vSAN 헬스/용량/성능 자동화 |
+| [Aria Operations API](https://developer.broadcom.com/xapis/vmware-aria-operations-api/latest/) | VMware Aria Operations REST API | 이상 탐지, 용량 계획, 지능형 알람 |
+| [VKS API](https://developer.broadcom.com/xapis/vmware-vsphere-kubernetes-service/3.6.0/api-docs.html) | vSphere Kubernetes Service API | Tanzu K8s 클러스터 관리 자동화 |
+| [VCF 9.0 API](https://developer.broadcom.com/sdks/vcf-api-specification/latest/) | VMware Cloud Foundation API Spec | VCF Operations 통합 |
+
+### 주요 이벤트 타입 (모니터링 자동화용)
+
+| 카테고리 | 이벤트 타입 | 심각도 |
+|----------|------------|--------|
+| VM 장애 | `VmFailedToPowerOnEvent`, `VmDiskFailedEvent` | Critical |
+| 호스트 | `HostConnectionLostEvent`, `HostShutdownEvent`, `DasHostFailedEvent` | Critical |
+| 스토리지 | `DatastoreRemovedOnHostEvent` | Critical |
+| DRS/HA | `VmFailoverFailed`, `DrsVmMigratedEvent`, `DrsSoftRuleViolationEvent` | Warning |
+| 네트워크 | `DVPortGroupReconfiguredEvent`, `HostIpChangedEvent` | Warning |
+| 인증 | `BadUsernameSessionEvent`, `UserLoginSessionEvent` | Warning/Info |
+
+### pyVmomi 연결 패턴 (vSphere 8.0 호환)
+
+```python
+# vSphere 8.0: SmartConnectNoSSL() 제거됨 → 아래 패턴 사용
+import ssl
+from pyVim.connect import SmartConnect, Disconnect
+
+context = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+context.check_hostname = False
+context.verify_mode = ssl.CERT_NONE
+
+si = SmartConnect(
+    host="vcenter.example.com",
+    user="administrator@vsphere.local",
+    pwd="password",
+    port=443,
+    sslContext=context,
+    disableSslCertValidation=True,  # vSphere 7.0/8.0 자체 서명 인증서
+)
+```
+
+### 스캔 로그 패턴 (ESXi 호스트 로그)
+
+```python
+# 오류 패턴 키워드 (hostd, vmkernel, vpxa 로그 분석)
+ERROR_PATTERNS = [
+    "error", "fail", "critical", "panic", "lost access",
+    "cannot", "timeout", "refused", "corrupt",
+]
+# 진단 로그 접근
+diag_mgr = host.configManager.diagnosticSystem
+log_data = diag_mgr.BrowseDiagnosticLog(key="hostd", start=500)
+```
+
+---
+
 ## Quick Diagnostic Commands
 
 ```bash

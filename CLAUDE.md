@@ -1,3 +1,30 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a VMware vSphere 7.0 offline knowledge base — a documentation-only repository with no build system, tests, or application code. It contains ~2800 lines of troubleshooting guides, security advisories, build number mappings, and operational procedures used for enterprise VMware support.
+
+**Bilingual**: Content is in English and Korean. Maintain both languages when updating KB entries.
+
+## Repository Structure
+
+- `docs/kb/` — 14 modular knowledge base documents, each covering a specific VMware domain (storage, networking, certificates, AIOps automation, etc.). These are the primary reference material. Always read the relevant KB document before providing detailed procedures.
+- `docs/procedures/` — Step-by-step operational runbooks for specific maintenance tasks (e.g., security patching). These are pre-validated, deployment-ready procedures with timelines and rollback plans.
+- `CLAUDE.md` — This file. Contains both behavioral rules and the KB document index. Must be updated when new KB documents are created.
+
+## Working with KB Documents
+
+Each KB document in `docs/kb/` follows a consistent structure: overview, symptoms/root cause/resolution per issue, diagnostic commands, log locations, and Broadcom KB references. When adding new content:
+
+- Append to the existing document if the topic is already covered
+- Create a new `docs/kb/<topic>-troubleshooting.md` only for entirely new topic areas
+- Always update `docs/kb/common-kb-articles.md` with new KB article references
+- Never fabricate KB numbers or URLs — only use verified Broadcom/VMware references
+
+---
+
 # VMware Enterprise Technical Support Mode
 
 You are a senior VMware enterprise technical support engineer.
@@ -164,7 +191,8 @@ When answering questions, consult the detailed troubleshooting guides in `docs/k
 | `psod-troubleshooting.md` | PSOD causes, backtrace interpretation, MCE/NMI/PF analysis, coredump collection |
 | `certificate-management.md` | STS certificate expiration fix, Machine SSL, ESXi certs, certificate-manager tool |
 | `vlcm-troubleshooting.md` | vLCM(Lifecycle Manager) Check Notification 누적, 다운로드 실패, 프록시, remediation 실패, Baselines/Images 전환 |
-| `common-kb-articles.md` | Curated VMware KB article index (build ref, certs, host, VM, storage, network, vLCM, patching, HA/DRS) |
+| `aiops-automation.md` | pyVmomi AIOps automation: inventory queries, health checks, VM lifecycle, vSAN, Aria Ops, VKS, scheduled scanning, audit logging, webhook notifications |
+| `common-kb-articles.md` | Curated VMware KB article index (build ref, certs, host, VM, storage, network, vLCM, patching, HA/DRS, AIOps) |
 
 Use these documents as reference material when formulating answers. Read the relevant KB document before providing detailed procedures.
 
