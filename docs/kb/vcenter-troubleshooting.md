@@ -214,3 +214,115 @@ ldapsearch -H ldap://dc.example.com -D "cn=svc-vcenter,ou=service,dc=example,dc=
 ### Reference
 - KB2146224 — Troubleshooting SSO issues
 - KB2150VMware — Reset SSO admin password
+
+---
+
+## VCSA Disk Partition Full / VCSA 디스크 파티션 용량 부족
+
+### Symptoms
+- vCenter services fail to start
+- VAMI (port 5480) shows disk warnings
+- "No space left on device" in /var/log/vmware/
+
+### Critical Partitions
+| Partition | Path | Common Cause | Safe to Clean |
+|-----------|------|--------------|---------------|
+| /storage/log | Logs | Excessive logging, failed log rotation | Yes — old logs only |
+| /storage/db | vPostgres | Database bloat, stats accumulation | No — use DB maintenance |
+| /storage/seat | SEAT data | Statsmon data | Yes — with service stop |
+| /storage/core | Core dumps | Repeated service crashes | Yes — old dumps |
+| / (root) | System | Package cache | Cautious |
+
+### Diagnostic
+```bash
+df -h
+du -sh /storage/log/vmware/* | sort -rh | head -20
+du -sh /storage/db/vpostgres/*
+```
+
+### Fix
+```bash
+# Clean old logs (SAFE)
+find /storage/log -name "*.log.*" -mtime +7 -delete
+
+# Clean core dumps (SAFE)
+rm -f /storage/core/*
+
+# Rotate logs immediately
+logrotate -f /etc/logrotate.conf
+
+# If /storage/db full — increase disk via VAMI or clean stats
+# VAMI > Storage > Increase partition size
+```
+
+### Reference
+- KB 2109074 — VCSA disk space issues
+
+---
+
+## VCSA Root Password Expiry / VCSA root 비밀번호 만료
+
+### Symptoms
+- Cannot SSH to VCSA
+- "Authentication token is no longer valid" when using root
+- VAMI login fails
+
+### Check Expiry
+```bash
+# Via SSH (if still accessible)
+chage -l root
+
+# Via VAMI API
+curl -k https://vcenter.example.com:5480/rest/appliance/local-accounts/root
+```
+
+### Fix (Password Expired)
+```bash
+# If VAMI accessible: Appliance > Access > Root password > Change
+
+# If locked out — reboot VCSA, interrupt GRUB:
+# 1. Reboot VCSA
+# 2. Press 'e' at GRUB menu
+# 3. Add 'rw init=/bin/bash' to linux line
+# 4. Boot, then: passwd root
+# 5. Reboot normally
+```
+
+### Prevention
+```bash
+# Set password to never expire
+chage -M -1 root
+# Or set to 365 days
+chage -M 365 root
+```
+
+---
+
+## Lookup Service Troubleshooting / Lookup Service 문제 해결
+
+### Symptoms
+- vCenter services fail to start in cascade
+- "Failed to connect to lookup service" in vpxd.log
+- SSO login fails even with correct credentials
+
+### Diagnostic
+```bash
+# Check lookup service status
+service-control --status vmware-lookupsvc
+
+# Check endpoint registration
+/usr/lib/vmware-lookupsvc/tools/lstool.py list --url https://localhost/lookupservice/sdk --no-check-cert
+
+# Check vmdir replication (multi-vCenter)
+/usr/lib/vmware-vmdir/bin/vdcrepadmin -f showpartners -h localhost -u administrator
+```
+
+### Fix
+```bash
+# Restart lookup service
+service-control --stop vmware-lookupsvc
+service-control --start vmware-lookupsvc
+
+# If service won't start, check certificate
+/usr/lib/vmware-lookupsvc/tools/ls_update_certs.py --url https://localhost/lookupservice/sdk
+```

@@ -227,3 +227,90 @@ New-ResourcePool -Location (Get-Cluster "Production") -Name "Dev" -CpuSharesLeve
 # Set limits
 Set-ResourcePool -ResourcePool "Dev" -CpuLimitMhz 20000 -MemLimitMB 65536
 ```
+
+---
+
+## Fault Tolerance (FT) / 무중단 보호
+
+### Overview
+- Provides zero-downtime protection via real-time VM replication to secondary host
+- vSphere 7.0 supports SMP-FT (up to 8 vCPUs, 128GB RAM)
+- Requires dedicated FT logging network (low latency, 10Gbps recommended)
+
+### Prerequisites
+| Requirement | Detail |
+|-------------|--------|
+| VM Hardware Version | 11+ (recommended: 19 for 7.0 U3) |
+| vCPU Limit | 8 vCPUs maximum |
+| Memory Limit | 128GB maximum |
+| Thick Provisioned Disk | Required (cannot use thin) |
+| EVC Mode | Must be enabled in cluster |
+| FT Logging Network | Dedicated VMkernel adapter (vmk) |
+| Incompatible Features | Snapshots, Storage vMotion, Hot-add CPU/Memory, vSAN |
+
+### Enable FT
+```
+vSphere Client > VM > Configure > Fault Tolerance > Turn On
+- Select secondary host (automatic with DRS)
+- Select datastore for secondary VM
+```
+
+### FT Network Configuration
+```bash
+# Create FT logging VMkernel adapter
+esxcli network ip interface add --interface-name=vmk3 --portgroup-name="FT Logging"
+esxcli network ip interface ipv4 set --interface-name=vmk3 --ipv4=10.0.3.101 --netmask=255.255.255.0 --type=static
+
+# Tag for FT logging via vSphere Client:
+# Host > Configure > VMkernel adapters > vmk3 > Edit > Fault Tolerance logging ✓
+```
+
+### Troubleshooting
+| Issue | Cause | Fix |
+|-------|-------|-----|
+| Cannot enable FT | Incompatible VM config (snapshots, thin disk) | Remove snapshots, convert to thick disk |
+| FT not protected (yellow) | No suitable secondary host | Check EVC, resource availability, FT network |
+| High FT latency | FT logging network congestion | Dedicate 10GbE NIC for FT logging |
+| FT VM slow | Excessive vCPU/memory for FT overhead | Right-size VM, reduce vCPUs if possible |
+
+---
+
+## HA VM Restart Priority & Orchestration / HA VM 재시작 우선순위
+
+### Restart Priority Levels
+| Priority | Level | Behavior |
+|----------|-------|----------|
+| 1 | Highest | Restarted first after host failure |
+| 2 | High | Restarted after priority 1 VMs |
+| 3 | Medium (Default) | Standard restart order |
+| 4 | Low | Restarted after medium priority |
+| 5 | Lowest | Restarted last |
+| - | Disabled | Not restarted by HA |
+
+### VM Restart Orchestration (vSphere 7.0+)
+- Define restart dependencies between VMs
+- Example: Database VM must start before App VM
+```
+vSphere Client > Cluster > Configure > VM Overrides > Add
+- Select VM
+- Set HA Restart Priority
+- Set VM Dependency Restart Condition:
+  - None
+  - VMware Tools heartbeat detected
+  - Guest heartbeat detected + VM powered on for X seconds
+```
+
+### Configuration
+```powershell
+# Set VM restart priority (PowerCLI)
+# SAFE — read/config only
+Get-VM "DB-Server" | Set-VM -HARestartPriority "High" -Confirm:$false
+Get-VM "Web-Server" | Set-VM -HARestartPriority "Medium" -Confirm:$false
+```
+
+### Best Practice
+- Priority 1 (Highest): Domain controllers, DNS, DHCP
+- Priority 2 (High): Database servers, storage appliances
+- Priority 3 (Medium): Application servers
+- Priority 4 (Low): Development/test VMs
+- Disabled: Stateless VMs that auto-scale

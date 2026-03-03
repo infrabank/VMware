@@ -240,3 +240,86 @@ esxcli vm process kill --type=soft --world-id=<wid>    # Soft kill
 esxcli vm process kill --type=hard --world-id=<wid>    # Hard kill
 esxcli vm process kill --type=force --world-id=<wid>   # Force kill (last resort)
 ```
+
+---
+
+## esxtop Reference / esxtop 레퍼런스
+
+### Interactive Mode Keys
+| Key | Screen | Shows |
+|-----|--------|-------|
+| c | CPU | CPU usage per world (%RDY, %CSTP, %USED, %SYS) |
+| m | Memory | Memory usage (MCTL=balloon, SWCUR=swap, ZIP=compress) |
+| n | Network | Network throughput per port (MbTX, MbRX, %DRPTX, %DRPRX) |
+| d | Disk Adapter | HBA throughput and latency |
+| u | Disk Device | Per-LUN DAVG, KAVG, GAVG, QAVG |
+| v | Disk VM | Per-VM disk I/O stats |
+| p | Power | CPU power states |
+
+### Key Metrics & Thresholds
+| Metric | Screen | Warning | Critical | Meaning |
+|--------|--------|---------|----------|---------|
+| %RDY | CPU | > 5% | > 10% | VM waiting for physical CPU |
+| %CSTP | CPU | > 3% | > 5% | SMP co-scheduling stop (over-provisioned vCPUs) |
+| %SWPWT | CPU | > 0% | > 5% | Waiting on swapped memory page |
+| MCTLSZ | Memory | > 0 | > 0 (sustained) | Balloon driver active — host memory pressure |
+| SWCUR | Memory | > 0 | > 100MB | VM memory swapped to disk |
+| DAVG | Disk | > 15ms | > 25ms | Device (array) latency |
+| KAVG | Disk | > 2ms | > 5ms | Kernel (VMkernel) latency |
+| GAVG | Disk | > 20ms | > 30ms | Guest-observed total latency (DAVG+KAVG) |
+| %DRPTX | Network | > 0% | > 1% | Transmit packets dropped |
+
+### Batch Mode (for historical collection)
+```bash
+# Collect 60 samples at 5-second intervals (SAFE — read-only)
+esxtop -b -d 5 -n 60 > /tmp/esxtop_batch.csv
+
+# Analyze on workstation:
+# Import CSV into Windows perfmon or Excel
+```
+
+### Useful Filters
+```bash
+# Show only VMs (exclude system worlds) in CPU screen
+# Press 'c' for CPU, then 'V' to toggle VM-only view
+
+# Change refresh interval to 2 seconds
+# Press 's', then type '2'
+```
+
+---
+
+## vmkfstools Reference / vmkfstools 레퍼런스
+
+### Disk Operations
+```bash
+# Create new virtual disk (MODERATE)
+vmkfstools -c 100G -d thin /vmfs/volumes/datastore1/vm1/disk.vmdk
+vmkfstools -c 100G -d eagerzeroedthick /vmfs/volumes/datastore1/vm1/disk.vmdk
+
+# Clone/copy disk (MODERATE)
+vmkfstools -i source.vmdk destination.vmdk -d thin
+
+# Extend disk (MODERATE — VM must be powered off or disk not in use)
+vmkfstools -X 200G /vmfs/volumes/datastore1/vm1/disk.vmdk
+
+# Inflate thin to thick (MODERATE)
+vmkfstools -j /vmfs/volumes/datastore1/vm1/disk.vmdk
+```
+
+### Disk Format Types
+| Flag | Type | Use Case |
+|------|------|----------|
+| -d thin | Thin Provision | Dev/test, space savings |
+| -d zeroedthick | Lazy Zeroed Thick | Default, general use |
+| -d eagerzeroedthick | Eager Zeroed Thick | FT, high-performance, clustering |
+
+### Lock & Geometry Queries
+```bash
+# Check who holds a lock on VMDK (SAFE)
+vmkfstools -D /vmfs/volumes/datastore1/vm1/disk.vmdk
+# Output includes: Lock Owners (MAC address of locking host)
+
+# Check disk geometry (SAFE)
+vmkfstools -P /vmfs/volumes/datastore1/
+```

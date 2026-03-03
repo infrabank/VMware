@@ -153,10 +153,10 @@ esxtop    # Press 'u' for disk view
 ### Patching via esxcli
 ```bash
 # List available VIBs in depot
-esxcli software sources profile list -d /vmfs/volumes/datastore1/patches/VMware-ESXi-8.0U2-xxx.zip
+esxcli software sources profile list -d /vmfs/volumes/datastore1/patches/VMware-ESXi-7.0U3s-24585291-depot.zip
 
 # Install profile (CRITICAL — requires maintenance mode)
-esxcli software profile update -d /vmfs/volumes/datastore1/patches/VMware-ESXi-8.0U2-xxx.zip -p ESXi-8.0U2-xxx-standard
+esxcli software profile update -d /vmfs/volumes/datastore1/patches/VMware-ESXi-7.0U3s-24585291-depot.zip -p ESXi-7.0U3s-24585291-standard
 
 # Check installed VIBs after update
 esxcli software vib list | head -20
@@ -223,3 +223,131 @@ ntpq -p    # Check peer status
 
 ### Reference
 - KB2012069 — Configuring NTP on ESXi
+
+---
+
+## ESXi Boot Failure / Boot Device Issues / 부트 장애
+
+### Symptoms
+- "No hypervisor found" or "Loading /s.v00 failed" during boot
+- ESXi fails to boot after USB/SD card degradation
+- Boot bank corruption: "/altbootbank not found"
+- Host reboots loop without completing POST to ESXi
+
+### Root Cause Analysis
+- USB/SD card wear-out (write cycles exceeded) — ESXi 7.0 writes more to boot device than 6.x
+- Boot bank corruption from power loss during VIB installation
+- BIOS boot order changed after firmware update
+- Incompatible boot device (< 8GB or slow USB 2.0)
+
+### Diagnostic Commands
+```bash
+# Check boot device
+esxcli storage core device list | grep -i "Is Boot Device"
+vsish -e get /system/bootDevice
+
+# Check boot banks
+ls -la /bootbank/
+ls -la /altbootbank/
+esxcli software profile get
+
+# Check USB/SD health (if accessible)
+vdq -q
+esxcli storage core device smart get -d <device>
+```
+
+### Fix
+
+**Scenario 1: Boot bank rebuild from altbootbank**
+```bash
+# Boot into recovery shell via DCUI or iLO/iDRAC console
+# Verify altbootbank is intact
+ls -la /altbootbank/
+
+# Copy altbootbank contents to bootbank
+cp -r /altbootbank/* /bootbank/
+
+# Reboot
+reboot
+```
+
+**Scenario 2: USB replacement procedure**
+```bash
+# 1. Boot ESXi from ISO (rescue/installer mode)
+# 2. Insert new USB device (>= 8GB, USB 3.0 recommended)
+# 3. Run installer — select "Install, preserve VMFS datastore"
+# 4. After install, restore host config from backup:
+vim-cmd hostsvc/firmware/restore_config /tmp/configBundle.tgz
+```
+
+**Scenario 3: Clean install with VMFS preservation**
+```bash
+# During ESXi installer, when prompted:
+# Select "Install ESXi, preserve VMFS datastore"
+# This retains all VM storage while reinstalling the hypervisor
+
+# After reinstall, re-add host to vCenter and reattach datastores
+esxcli storage vmfs extent list
+```
+
+### VMware Recommendation for 7.0
+- USB/SD boot deprecated in vSphere 7.0 Update 3+ (KB 85685)
+- Recommend migrating to M.2/BOSS for persistent boot device
+- If USB must be used: disable coredump on boot device, redirect scratch to VMFS
+
+### Reference
+- KB85685 — USB/SD boot device deprecation in vSphere 7.0 Update 3
+- KB2042141 — ESXi boot bank recovery procedures
+
+---
+
+## ESXi Ramdisk Full (/tmp, /var/run) / Ramdisk 용량 부족
+
+### Symptoms
+- hostd/vpxa service crashes or fails to restart
+- "Ramdisk (tmp) is full" or "No space left on device" in vmkernel.log
+- Cannot SSH to host or run esxcli commands
+- syslog: "Ramdisk 'tmp' is full. VMkernel may stop functioning"
+
+### Root Cause
+- Excessive logging fills /var/run/log ramdisk
+- Large core dump files in /tmp
+- Failed VIB installation leaves temp files
+- Stale DCUI/Shell sessions consuming memory
+
+### Diagnostic Commands
+```bash
+# Check ramdisk usage
+vdf -h
+ls -la /tmp/
+du -sh /var/run/log/*
+
+# Check system memory pressure
+vsish -e get /memory/comprehensive
+```
+
+### Fix
+```bash
+# Clear temp files (SAFE)
+rm -f /tmp/vmware-*.log
+rm -f /tmp/scratch/downloads/*
+
+# Rotate logs manually (SAFE)
+esxcli system syslog reload
+
+# If SSH not available, use DCUI:
+# Troubleshooting Options > Restart Management Agents
+```
+
+### Prevention
+- Redirect scratch to persistent VMFS:
+```bash
+esxcli system settings advanced set -o /ScratchConfig/ConfiguredScratchLocation \
+  -s /vmfs/volumes/<datastore>/scratch/<hostname>
+```
+- Configure remote syslog to reduce local log volume
+- Monitor ramdisk usage via SNMP or script
+
+### Reference
+- KB1009555 — ESXi scratch partition and ramdisk configuration
+- KB2149257 — Ramdisk full conditions on ESXi hosts

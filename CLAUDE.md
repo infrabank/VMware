@@ -4,13 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a VMware vSphere 7.0 offline knowledge base — a documentation-only repository with no build system, tests, or application code. It contains ~2800 lines of troubleshooting guides, security advisories, build number mappings, and operational procedures used for enterprise VMware support.
+This is a VMware vSphere 7.0 offline knowledge base — a documentation-only repository with no build system, tests, or application code. It contains ~9000 lines of troubleshooting guides, security advisories, build number mappings, and operational procedures used for enterprise VMware support.
 
 **Bilingual**: Content is in English and Korean. Maintain both languages when updating KB entries.
 
 ## Repository Structure
 
-- `docs/kb/` — 14 modular knowledge base documents, each covering a specific VMware domain (storage, networking, certificates, AIOps automation, etc.). These are the primary reference material. Always read the relevant KB document before providing detailed procedures.
+- `docs/kb/` — 19 modular knowledge base documents, each covering a specific VMware domain (storage, networking, certificates, security hardening, performance tuning, PowerCLI, backup/DR, VMware Tools, AIOps automation, etc.). These are the primary reference material. Always read the relevant KB document before providing detailed procedures.
 - `docs/procedures/` — Step-by-step operational runbooks for specific maintenance tasks (e.g., security patching). These are pre-validated, deployment-ready procedures with timelines and rollback plans.
 - `CLAUDE.md` — This file. Contains both behavioral rules and the KB document index. Must be updated when new KB documents are created.
 
@@ -179,12 +179,12 @@ When answering questions, consult the detailed troubleshooting guides in `docs/k
 
 | Document | Coverage |
 |----------|----------|
-| `esxi-troubleshooting.md` | Host Not Responding, PSOD, maintenance mode, storage performance, upgrades, SSH, NTP |
-| `vcenter-troubleshooting.md` | vCenter services, STS certificate expiration, backup/restore, performance, upgrades, SSO |
-| `storage-troubleshooting.md` | APD/PDL, VMFS issues, vSAN troubleshooting, NFS, SCSI sense codes |
-| `networking-troubleshooting.md` | VM connectivity, vSwitch/vDS, VLANs, VMkernel, NIC teaming, packet capture, jumbo frames, firewall |
-| `cluster-operations.md` | HA, DRS, vMotion, maintenance mode procedures, EVC, resource pools |
-| `esxcli-reference.md` | Comprehensive esxcli command reference (system, network, storage, software, VM, vSAN) |
+| `esxi-troubleshooting.md` | Host Not Responding, PSOD, maintenance mode, storage performance, upgrades, SSH, NTP, boot failures, ramdisk full |
+| `vcenter-troubleshooting.md` | vCenter services, STS certificate expiration, backup/restore, performance, upgrades, SSO, disk partition full, root password expiry, lookup service |
+| `storage-troubleshooting.md` | APD/PDL, VMFS issues, vSAN troubleshooting, NFS, SCSI sense codes, iSCSI, multipathing policies, VMFS locking, snapshot consolidation |
+| `networking-troubleshooting.md` | VM connectivity, vSwitch/vDS, VLANs, VMkernel, NIC teaming, packet capture, jumbo frames, firewall, DNS resolution, LACP |
+| `cluster-operations.md` | HA, DRS, vMotion, maintenance mode procedures, EVC, resource pools, Fault Tolerance (FT), HA VM restart priority |
+| `esxcli-reference.md` | Comprehensive esxcli command reference (system, network, storage, software, VM, vSAN), esxtop reference, vmkfstools reference |
 | `log-analysis.md` | Log file locations (ESXi + VCSA), key error patterns, analysis workflows |
 | `build-numbers.md` | ESXi 7.0 & vCenter 7.0 complete build number to version mapping (GA ~ latest) |
 | `security-advisories.md` | VMSA-2024/2025 critical advisories, CVE details, patch priority matrix |
@@ -192,7 +192,12 @@ When answering questions, consult the detailed troubleshooting guides in `docs/k
 | `certificate-management.md` | STS certificate expiration fix, Machine SSL, ESXi certs, certificate-manager tool |
 | `vlcm-troubleshooting.md` | vLCM(Lifecycle Manager) Check Notification 누적, 다운로드 실패, 프록시, remediation 실패, Baselines/Images 전환 |
 | `aiops-automation.md` | pyVmomi AIOps automation: inventory queries, health checks, VM lifecycle, vSAN, Aria Ops, VKS, scheduled scanning, audit logging, webhook notifications |
-| `common-kb-articles.md` | Curated VMware KB article index (build ref, certs, host, VM, storage, network, vLCM, patching, HA/DRS, AIOps) |
+| `powercli-reference.md` | PowerCLI installation, connection management, host/VM/snapshot/storage/network management, reporting scripts, bulk operations, one-liners, troubleshooting |
+| `security-hardening.md` | ESXi/vCenter security hardening: Lockdown Mode, SSH/password/firewall policy, TLS, AD integration risks, audit logging, vSwitch security, VMSA-2021-0028/2022-0011/2023-0023, DISA STIG/CIS checklist |
+| `performance-tuning.md` | esxtop reference (CPU/Memory/Storage/Network screens), %RDY/%CSTP/DAVG/KAVG thresholds, NUMA/HT/power management, memory reclamation, queue depth, SIOC, NIOC, VM sizing (PVSCSI/VMXNET3), vmkfstools, diagnostics workflows |
+| `backup-disaster-recovery.md` | VADP, CBT, snapshot-based backup, vCenter VAMI backup, vSphere Replication, SRM basics, Veeam/Commvault integration issues, recovery procedures |
+| `vmware-tools-management.md` | VMware Tools version compatibility, installation (Windows/Linux), open-vm-tools, PVSCSI/VMXNET3 drivers, Guest OS Customization, quiescing (VSS/pre-freeze), troubleshooting, vLCM Tools management |
+| `common-kb-articles.md` | Curated VMware KB article index (build ref, certs, host, VM, storage, network, vLCM, patching, HA/DRS, backup/DR, VMware Tools, AIOps, PowerCLI) |
 
 Use these documents as reference material when formulating answers. Read the relevant KB document before providing detailed procedures.
 

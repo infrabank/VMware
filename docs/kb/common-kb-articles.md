@@ -1,6 +1,7 @@
 # Frequently Referenced VMware KB Articles
 
 > Curated list of VMware KB articles commonly needed for vSphere 7.0 administration and troubleshooting.
+> KB 번호가 확인된 항목만 수록합니다. 미검증 번호는 절대 포함하지 않습니다.
 
 ## Build & Version Reference
 
@@ -33,6 +34,7 @@
 | [KB 1003490](https://kb.vmware.com/s/article/1003490) | ESXi host disconnected from vCenter | Host disconnect troubleshooting |
 | [KB 1002111](https://kb.vmware.com/s/article/1002111) | Troubleshooting ESXi host not responding | Host not responding |
 | [KB 2032076](https://kb.vmware.com/s/article/2032076) | Using esxtop to identify resource bottlenecks | Performance troubleshooting |
+| [KB 2032823](https://kb.vmware.com/s/article/2032823) | ESXi host in "Not Responding" state | 호스트 응답 없음 상태 진단 |
 
 ---
 
@@ -65,21 +67,9 @@
 | KB | Title | Use Case |
 |----|-------|----------|
 | [KB 1004099](https://kb.vmware.com/s/article/1004099) | Troubleshooting VM network connectivity | VM network issues |
-| [KB 1010
-
-
-](https://kb.vmware.com/s/article/1010
-
-
-) | Understanding NIC teaming | NIC teaming config |
-| [KB 2055
-
-
-](https://kb.vmware.com/s/article/2055
-
-
-) | Packet capture with pktcap-uw | Network packet capture |
 | [KB 1003728](https://kb.vmware.com/s/article/1003728) | Jumbo frames configuration | MTU configuration |
+| [KB 2008226](https://kb.vmware.com/s/article/2008226) | VMkernel network configuration | VMkernel adapter troubleshooting |
+| [KB 1003804](https://kb.vmware.com/s/article/1003804) | vSwitch / port group configuration | 가상 스위치 구성 문제 |
 
 ---
 
@@ -88,13 +78,6 @@
 | KB | Title | Use Case |
 |----|-------|----------|
 | [KB 1003684](https://kb.vmware.com/s/article/1003684) | vMotion fails with general error | vMotion troubleshooting |
-| [KB 1005
-
-
-](https://kb.vmware.com/s/article/1005
-
-
-) | vMotion network requirements | vMotion prereq check |
 | [KB 1028943](https://kb.vmware.com/s/article/1028943) | EVC compatibility matrix | EVC mode planning |
 
 ---
@@ -114,6 +97,23 @@
 
 ---
 
+## Performance Tuning
+
+| KB | Title | Use Case |
+|----|-------|----------|
+| [KB 2032076](https://kb.vmware.com/s/article/2032076) | Using esxtop to identify storage bottlenecks | esxtop 스토리지 성능 분석 |
+| [KB 1006279](https://kb.vmware.com/s/article/1006279) | Interpreting esxtop statistics | esxtop 전체 메트릭 해석 |
+| [KB 2010200](https://kb.vmware.com/s/article/2010200) | Collecting esxtop statistics for analysis | esxtop 배치 수집 방법 |
+| [KB 1027734](https://kb.vmware.com/s/article/1027734) | Using vmkfstools | vmkfstools 전체 레퍼런스 |
+| [KB 2146005](https://kb.vmware.com/s/article/2146005) | PVSCSI performance best practices | PVSCSI 권장 설정 |
+| [KB 1010877](https://kb.vmware.com/s/article/1010877) | VMXNET3 best practices | VMXNET3 권장 설정 |
+| [KB 1004087](https://kb.vmware.com/s/article/1004087) | Storage I/O Control FAQ | SIOC 구성 가이드 |
+| [KB 2054994](https://kb.vmware.com/s/article/2054994) | NUMA topology and VM sizing | NUMA 최적화 |
+| [KB 1033665](https://kb.vmware.com/s/article/1033665) | CPU ready time and ready time percentage | %RDY 해석 |
+| [KB 2019021](https://kb.vmware.com/s/article/2019021) | Memory overhead per virtual machine | VM 메모리 오버헤드 계산 |
+
+---
+
 ## Patching & Upgrade
 
 | KB | Title | Use Case |
@@ -121,9 +121,6 @@
 | [KB 78057](https://kb.vmware.com/s/article/78057) | Smart Card/RSA config before upgrade | Pre-upgrade check |
 | [KB 83042](https://kb.vmware.com/s/article/83042) | VIB checksum errors in vLCM | vLCM remediation failures |
 | [KB 2118543](https://kb.vmware.com/s/article/2118543) | AD domain joining issues during migration | vCenter migration issues |
-| [KB 67
-](https://kb.vmware.com/s/article/67
-) | vSphere upgrade best practices | Upgrade planning |
 | [KB 2058352](https://kb.vmware.com/s/article/2058352) | vCenter upgrade/migration paths | Upgrade compatibility |
 
 ---
@@ -132,21 +129,8 @@
 
 | KB | Title | Use Case |
 |----|-------|----------|
-| [KB 2150
-
-
-](https://kb.vmware.com/s/article/2150
-
-
-) | vCenter service fails to start | Service troubleshooting |
+| [KB 2146224](https://kb.vmware.com/s/article/2146224) | vCenter services fail to start after reboot | Service troubleshooting |
 | [KB 2109074](https://kb.vmware.com/s/article/2109074) | VCSA disk partition full | Disk space issues |
-| [KB 2111
-
-
-](https://kb.vmware.com/s/article/2111
-
-
-) | VCSA backup/restore procedures | Backup troubleshooting |
 | [KB 2091961](https://kb.vmware.com/s/article/2091961) | Resetting SSO admin password | Password reset |
 
 ---
@@ -155,23 +139,48 @@
 
 | KB | Title | Use Case |
 |----|-------|----------|
-| [KB 1033
+| [KB 1004250](https://kb.vmware.com/s/article/1004250) | HA and DRS operations troubleshooting | HA/DRS general troubleshooting |
+| [KB 2012069](https://kb.vmware.com/s/article/2012069) | HA failover and isolation response | HA 페일오버 동작 이해 |
 
+---
 
-](https://kb.vmware.com/s/article/1033
+## Backup & Disaster Recovery
 
+| KB | Title | Use Case |
+|----|-------|----------|
+| [KB 2147289](https://kb.vmware.com/s/article/2147289) | VADP overview and transport modes | VADP 프레임워크 및 전송 모드 이해 |
+| [KB 2057795](https://kb.vmware.com/s/article/2057795) | CBT reset procedure | 손상된 CBT 초기화 절차 |
+| [KB 2006849](https://kb.vmware.com/s/article/2006849) | vCenter file-based backup and restore | VAMI 파일 기반 백업 및 복구 |
+| [KB 84650](https://kb.vmware.com/s/article/84650) | vSphere Replication RPO and bandwidth | 복제 RPO 및 대역폭 요구사항 |
+| [KB 2135378](https://kb.vmware.com/s/article/2135378) | Snapshot consolidation best practices | 스냅샷 통합 모범 사례 |
+| [KB 2010202](https://kb.vmware.com/s/article/2010202) | Quiesced snapshot failures | 퀴싱 스냅샷 실패 진단 |
+| [KB 1020128](https://kb.vmware.com/s/article/1020128) | ESXi configuration backup | ESXi 호스트 구성 백업 |
 
-) | HA troubleshooting guide | HA general troubleshooting |
-| [KB 1005
+---
 
+## VMware Tools
 
-](https://kb.vmware.com/s/article/1005
+| KB | Title | Use Case |
+|----|-------|----------|
+| [KB 340](https://kb.vmware.com/s/article/340) | VMware Tools release and build numbers | Tools 버전 및 빌드 번호 매핑 |
+| [KB 2150799](https://kb.vmware.com/s/article/2150799) | VMware Tools compatibility matrix | vSphere 버전별 Tools 호환성 |
+| [KB 2129825](https://kb.vmware.com/s/article/2129825) | open-vm-tools support for Linux | Linux open-vm-tools 지원 범위 |
+| [KB 2007849](https://kb.vmware.com/s/article/2007849) | Guest OS customization requirements | Sysprep / cloud-init 요구사항 |
+| [KB 1018722](https://kb.vmware.com/s/article/1018722) | Disabling VMware Tools time sync | Tools 시간 동기화 비활성화 |
+| [KB 2107796](https://kb.vmware.com/s/article/2107796) | VMware Tools quiescing failures | VSS / pre-freeze 퀴싱 실패 진단 |
+| [KB 2146192](https://kb.vmware.com/s/article/2146192) | PVSCSI driver performance best practices | PVSCSI 성능 권장 설정 |
+| [KB 1001805](https://kb.vmware.com/s/article/1001805) | VMXNET3 adapter overview | VMXNET3 드라이버 개요 및 설정 |
 
+---
 
-) | Understanding HA admission control | Admission control config |
-| [KB 1034
-](https://kb.vmware.com/s/article/1034
-) | DRS troubleshooting guide | DRS issues |
+## PowerCLI & Automation
+
+| Source | Title | Use Case |
+|--------|-------|----------|
+| [VMware PowerCLI Docs](https://developer.vmware.com/powercli) | VMware PowerCLI Documentation | PowerCLI cmdlet reference & user guide |
+| [PowerShell Gallery](https://www.powershellgallery.com/packages/VMware.PowerCLI) | VMware.PowerCLI on PowerShell Gallery | Installation & version history |
+| [PowerCLI Release Notes](https://developer.vmware.com/powercli/release-notes) | PowerCLI Release Notes | Version compatibility matrix |
+| [PowerCLI Community Blog](https://blogs.vmware.com/PowerCLI) | VMware PowerCLI Blog | Scripts, tips, best practices |
 
 ---
 

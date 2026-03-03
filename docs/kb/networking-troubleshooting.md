@@ -237,3 +237,79 @@ esxcli network firewall ruleset allowedip add -r sshClient -i 10.0.0.0/24
 ### Reference
 - KB2008226 — Firewall configuration in ESXi
 - KB1003804 — Packet capture methods in ESXi
+
+---
+
+## DNS Resolution Issues / DNS 해결 문제
+
+### Symptoms
+- ESXi host disconnects from vCenter intermittently
+- vMotion fails with "A general system error occurred"
+- vCenter services slow to start (DNS timeout during initialization)
+
+### Diagnostic
+```bash
+# ESXi DNS check
+esxcli network ip dns server list
+esxcli network ip dns search list
+nslookup vcenter.example.com
+ping -c 3 vcenter.example.com
+
+# VCSA DNS check
+cat /etc/resolv.conf
+nslookup $(hostname -f)
+```
+
+### Root Cause
+- Forward/reverse DNS mismatch for ESXi/vCenter FQDN
+- DNS server unreachable from management VLAN
+- /etc/hosts missing entries (ESXi or VCSA)
+
+### Fix
+```bash
+# ESXi: Set DNS servers
+esxcli network ip dns server add --server=10.0.0.53
+esxcli network ip dns server add --server=10.0.0.54
+
+# ESXi: Add /etc/hosts entry as fallback
+echo "10.0.1.10 vcenter.example.com vcenter" >> /etc/hosts
+
+# VCSA: Fix via VAMI > Networking > DNS
+```
+
+### Best Practice
+- Always configure both forward AND reverse DNS for all ESXi hosts and vCenter
+- Use at least 2 DNS servers
+- Verify DNS resolution before joining hosts to vCenter
+
+---
+
+## LACP Configuration (vDS) / LACP 구성
+
+### Overview
+- LACP only supported on vSphere Distributed Switch (vDS), NOT standard vSwitch
+- Requires physical switch LACP configuration to match
+
+### Configuration
+```
+vSphere Client > Networking > vDS > Configure > LACP
+- Create LAG (Link Aggregation Group)
+- Set mode: Active or Passive
+- Set hash algorithm: Source/Destination IP, Source/Destination MAC, or Source/Destination Port
+- Assign uplinks to LAG
+```
+
+### Common Issues
+| Problem | Cause | Fix |
+|---------|-------|-----|
+| Link flapping | LACP mode mismatch (both passive) | Set one side to Active |
+| No traffic after LAG creation | Uplinks not migrated to LAG | Migrate uplinks from port group to LAG |
+| Hash imbalance | Wrong hash algorithm | Match hash on both switch and vDS |
+| LACP timeout | Short vs Long timeout mismatch | Align timeout setting (default: Short=3s) |
+
+### Verification
+```bash
+# Check LACP status on ESXi
+esxcli network vswitch dvs vmware lacp status get
+esxcli network vswitch dvs vmware lacp config get
+```
