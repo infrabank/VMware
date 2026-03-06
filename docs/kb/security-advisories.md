@@ -134,17 +134,63 @@
 
 ---
 
-## Critical Advisories (2024-2025)
+## Critical Advisories (2024-2026)
+
+### VMSA-2026-0001 (2026-02) — POTENTIAL EXPLOITATION
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2026-22719 | **9.1** | VMware Aria Operations | Command injection → unauthenticated RCE | **Potential** |
+| CVE-2026-22720 | 8.0 | VMware Aria Operations | Stored XSS → admin action execution | - |
+| CVE-2026-22721 | 6.2 | VMware Aria Operations | Privilege escalation | - |
+
+**Fix**: Aria Operations 8.18.3 HF4
+- VMSA-2026-0001.1 (2026-03-03): Broadcom이 잠재적 악용 보고를 인지하였으나 독립적 확인 불가
+- **Immediate mitigation**: Aria Operations 관리 인터페이스를 내부 관리 네트워크로 제한
+
+> **Reference**: [VMSA-2026-0001](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/36947)
+
+---
+
+### VMSA-2025-0016 (2025-09)
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2025-41250 | 8.5 | vCenter Server | SMTP header injection | - |
+| CVE-2025-41251 | - | vCenter Server | (NSA 보고) | - |
+| CVE-2025-41252 | 7.5 | VMware NSX | Username enumeration → unauthorized access | - |
+
+**Fix**: vCenter 7.0 U3w (24614210), vCenter 8.0 U3g (24853646), NSX patches
+- CVE-2025-41251은 NSA(미국 국가안보국)가 보고
+
+> **Reference**: [VMSA-2025-0016](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/36150)
+
+---
+
+### VMSA-2025-0015 (2025-09) — ACTIVELY EXPLOITED
+| CVE | CVSS | Product | Type | Exploited |
+|-----|------|---------|------|-----------|
+| CVE-2025-41244 | 7.8 | VMware Tools (Windows/Linux) | Local privilege escalation | **YES** |
+| CVE-2025-41245 | 4.9 | VMware Aria Operations | Information disclosure (credential leak) | - |
+| CVE-2025-41246 | - | VMware Tools | - | - |
+
+**Fix**: VMware Tools 12.5.4 (build 24964629), open-vm-tools `stable-12.5.4`
+- VMSA-2025-0015.1 (2025-10-30): CVE-2025-41244 야생 악용 확인
+- Linux: open-vm-tools는 OS 벤더를 통해 패치 배포
+
+> **Reference**: [VMSA-2025-0015](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/36149)
+
+---
 
 ### VMSA-2025-0013 (2025-07)
 | CVE | CVSS | Product | Type | Exploited |
 |-----|------|---------|------|-----------|
-| CVE-2025-41236 | 9.3 | ESXi, Workstation, Fusion | VM escape | - |
-| CVE-2025-41237 | 8.2 | ESXi, Workstation, Fusion | Sandbox escape | - |
-| CVE-2025-41238 | 7.1 | ESXi, Workstation, Fusion | Information disclosure | - |
-| CVE-2025-41239 | - | VMware Tools | - | - |
+| CVE-2025-41236 | **9.3** | ESXi, Workstation, Fusion | VMXNET3 integer-overflow → VM escape (code execution on host) | - |
+| CVE-2025-41237 | **9.3** | ESXi, Workstation, Fusion | VMCI integer-underflow → OOB write → sandbox escape | - |
+| CVE-2025-41238 | **9.3** | ESXi, Workstation, Fusion | PVSCSI heap-overflow → OOB write → code execution as VMX | - |
+| CVE-2025-41239 | 7.1 | VMware Tools | vSockets information disclosure (uninitialized memory) | - |
 
-**Fix**: ESXi 7.0 U3w (24784741), ESXi 8.0 U3d
+**Fix**: ESXi 7.0 U3w (24784741), ESXi 8.0 U3f (24784735) / U3g (24859861)
+- 3개의 Critical (CVSS 9.3) — 모두 로컬 관리자 권한 가진 VM에서 호스트 레벨 코드 실행 가능
+- **Mitigation**: VMXNET3, PVSCSI, VMCI 비활성화는 비현실적 — **패치 필수**
 
 ---
 
@@ -229,16 +275,58 @@ To check if your environment is vulnerable:
 $vcBuild = ($global:DefaultVIServer).Build
 $esxiBuilds = Get-VMHost | Select Name, Build
 
-# Compare against fix versions
-$vcFixBuild = 24322018   # 7.0 U3t (VMSA-2024-0019 fix)
-$esxiFixBuild = 24585291 # 7.0 U3s (VMSA-2025-0004 fix)
-
-if ([int]$vcBuild -lt $vcFixBuild) {
-    Write-Warning "vCenter is VULNERABLE - current: $vcBuild, fix: $vcFixBuild"
+# === vSphere 7.0 fix builds ===
+$fixes70 = @{
+    "VMSA-2025-0013 (ESXi 7.0)" = @{ Build = 24784741; Name = "7.0 U3w" }
+    "VMSA-2025-0016 (vCenter 7.0)" = @{ Build = 24614210; Name = "7.0 U3w" }
+    "VMSA-2025-0004 (ESXi 7.0)" = @{ Build = 24585291; Name = "7.0 U3s" }
+    "VMSA-2024-0019 (vCenter 7.0)" = @{ Build = 24322018; Name = "7.0 U3t" }
 }
+
+# === vSphere 8.0 fix builds ===
+$fixes80 = @{
+    "VMSA-2026-0001 (ESXi 8.0)" = @{ Build = 25205845; Name = "8.0 U3i" }
+    "VMSA-2025-0013 (ESXi 8.0)" = @{ Build = 24784735; Name = "8.0 U3f" }
+    "VMSA-2025-0004 (ESXi 8.0)" = @{ Build = 24585383; Name = "8.0 U3d" }
+    "VMSA-2024-0019 (vCenter 8.0)" = @{ Build = 24322831; Name = "8.0 U3d" }
+}
+
+# Check vCenter (latest critical fix)
+$vcLatestFix = 24614210  # 7.0 U3w for vSphere 7.0
+# Use 25197330 for vSphere 8.0 (8.0 U3i)
+if ([int]$vcBuild -lt $vcLatestFix) {
+    Write-Warning "vCenter is BEHIND latest security patches - current: $vcBuild"
+}
+
+# Check ESXi hosts
+$esxiLatestFix = 24784741  # 7.0 U3w for vSphere 7.0
+# Use 25205845 for vSphere 8.0 (8.0 U3i)
 foreach ($h in $esxiBuilds) {
-    if ([int]$h.Build -lt $esxiFixBuild) {
-        Write-Warning "$($h.Name) is VULNERABLE - current: $($h.Build), fix: $esxiFixBuild"
+    if ([int]$h.Build -lt $esxiLatestFix) {
+        Write-Warning "$($h.Name) is BEHIND latest security patches - current: $($h.Build)"
+    }
+}
+
+# Detailed VMSA check (7.0 example)
+foreach ($vmsa in $fixes70.GetEnumerator()) {
+    foreach ($h in $esxiBuilds) {
+        if ([int]$h.Build -lt $vmsa.Value.Build) {
+            Write-Warning "$($h.Name) VULNERABLE to $($vmsa.Key) - need $($vmsa.Value.Name) ($($vmsa.Value.Build))"
+        }
     }
 }
 ```
+
+---
+
+## Active Exploitation Timeline (야생 악용 타임라인)
+
+| VMSA | CVE | 악용 확인 시점 | 공격 유형 | CISA KEV |
+|------|-----|--------------|-----------|:--------:|
+| VMSA-2026-0001 | CVE-2026-22719 | 2026-03 (잠재적) | Aria Ops RCE | TBD |
+| VMSA-2025-0015 | CVE-2025-41244 | 2025-10 | VMware Tools LPE | - |
+| VMSA-2025-0004 | CVE-2025-22224/22225/22226 | 2025-03 | VM escape chain | **YES** |
+| VMSA-2024-0019 | CVE-2024-38812/38813 | 2024-11 | vCenter DCERPC RCE | **YES** |
+| VMSA-2024-0013 | CVE-2024-37085 | 2024-06 | ESXi AD auth bypass (ransomware) | **YES** |
+| VMSA-2023-0023 | CVE-2023-34048 | 2023-10 | vCenter DCERPC RCE (APT) | **YES** |
+| VMSA-2021-0002 | CVE-2021-21974 | 2023-02 | ESXi SLP RCE (ESXiArgs ransomware) | **YES** |

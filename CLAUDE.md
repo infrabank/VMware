@@ -186,8 +186,8 @@ When answering questions, consult the detailed troubleshooting guides in `docs/k
 | `cluster-operations.md` | HA, DRS, vMotion, maintenance mode procedures, EVC, resource pools, Fault Tolerance (FT), HA VM restart priority |
 | `esxcli-reference.md` | Comprehensive esxcli command reference (system, network, storage, software, VM, vSAN), esxtop reference, vmkfstools reference |
 | `log-analysis.md` | Log file locations (ESXi + VCSA), key error patterns, analysis workflows |
-| `build-numbers.md` | ESXi 7.0 & vCenter 7.0 complete build number to version mapping (GA ~ latest) |
-| `security-advisories.md` | VMSA-2024/2025 critical advisories, CVE details, patch priority matrix |
+| `build-numbers.md` | ESXi 7.0/8.0 & vCenter 7.0/8.0 complete build number to version mapping (GA ~ latest), vSphere 7.0 EOL notice, lifecycle summary |
+| `security-advisories.md` | VMSA-2021~2026 critical advisories, CVE details, patch priority matrix, active exploitation timeline |
 | `psod-troubleshooting.md` | PSOD causes, backtrace interpretation, MCE/NMI/PF analysis, coredump collection |
 | `certificate-management.md` | STS certificate expiration fix, Machine SSL, ESXi certs, certificate-manager tool |
 | `vlcm-troubleshooting.md` | vLCM(Lifecycle Manager) Check Notification 누적, 다운로드 실패, 프록시, remediation 실패, Baselines/Images 전환 |

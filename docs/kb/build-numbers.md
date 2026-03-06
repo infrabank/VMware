@@ -1,8 +1,10 @@
-# VMware vSphere 7.0 Build Number Reference
+# VMware vSphere Build Number Reference
 
-> Source: [virten.net ESXi History](https://www.virten.net/vmware/esxi-release-build-number-history/), [virten.net vCenter History](https://www.virten.net/vmware/vcenter-release-and-build-number-history/), [Broadcom KB 326316](https://knowledge.broadcom.com/external/article/316595)
+> Source: [virten.net ESXi History](https://www.virten.net/vmware/esxi-release-build-number-history/), [virten.net vCenter History](https://www.virten.net/vmware/vcenter-release-and-build-number-history/), [Broadcom KB 316595](https://knowledge.broadcom.com/external/article/316595), [V-Front ESXi Patch History](https://esxi-patches.v-front.de/)
 
-## ESXi 7.0 Build Numbers
+> **vSphere 7.0 EOL**: ESXi 7.0 및 vCenter 7.0은 **2025-10-02** End of General Support에 도달했습니다. 보안 패치 및 업데이트가 더 이상 제공되지 않습니다. Technical Guidance 단계는 2027-10-02까지 유지됩니다. vSphere 8.0 이상으로 마이그레이션을 권장합니다.
+
+## ESXi 7.0 Build Numbers (EOL: 2025-10-02)
 
 | Version | Build | Release Date | Notes |
 |---------|-------|--------------|-------|
@@ -94,6 +96,80 @@
 
 ---
 
+---
+
+## ESXi 8.0 Build Numbers
+
+| Version | Build | Release Date | Notes |
+|---------|-------|--------------|-------|
+| **8.0 U3i** | **25205845** | **2026-02-23** | **VMSA-2026-0001 fix, OpenSSL 3.0.19** |
+| 8.0 U3h | 25067014 | 2025-12-15 | |
+| 8.0 U3h (Security) | 25066677 | 2025-12-15 | Security-only |
+| 8.0 U3g | 24859861 | 2025-07-29 | |
+| 8.0 U3g (Security) | 24853260 | 2025-07-29 | Security-only |
+| 8.0f | 24814147 | 2025-07-15 | VMSA-2025-0013 fix |
+| 8.0 U2e | 24789317 | 2025-07-15 | |
+| 8.0 U3f | 24784735 | 2025-07-15 | VMSA-2025-0013 fix |
+| 8.0 U3e (Free ESXi) | 24677879 | 2025-04-10 | Free edition |
+| 8.0 U3e | 24674464 | 2025-04-10 | |
+| 8.0 U3e (Security) | 24659227 | 2025-04-10 | Security-only |
+| **8.0 U3d** | **24585383** | **2025-03-04** | **VMSA-2025-0004 fix (zero-day)** |
+| 8.0 U2d | 24585300 | 2025-03-04 | VMSA-2025-0004 fix |
+| 8.0e | 24569005 | 2025-03-11 | |
+| 8.0 U3c | 24414501 | 2024-12-12 | |
+| 8.0 U3b | 24280767 | 2024-09-17 | |
+| 8.0 U3b (Security) | 24262298 | 2024-09-17 | Security-only |
+| 8.0d | 24118393 | 2024-10-07 | |
+| 8.0 U3 | 24022510 | 2024-06-25 | Major Update |
+| 8.0 U2c | 23825572 | 2024-05-21 | |
+| 8.0 U2b | 23305546 | 2024-02-29 | |
+| 8.0 U2b (Security) | 23305545 | 2024-02-29 | Security-only |
+| 8.0 U1d | 23299997 | 2024-03-05 | |
+| 8.0 U2 | 22380479 | 2023-09-21 | Major Update |
+| 8.0 U1c | 22088125 | 2023-07-27 | |
+| 8.0 U1c (Security) | 22082334 | 2023-07-27 | Security-only |
+| 8.0 U1a | 21813344 | 2023-06-01 | |
+| 8.0 U1 | 21495797 | 2023-04-18 | Major Update |
+| 8.0c | 21493926 | 2023-03-30 | |
+| 8.0b | 21203435 | 2023-02-14 | |
+| 8.0b (Security) | 21203431 | 2023-02-14 | Security-only |
+| 8.0a | 20842819 | 2022-12-08 | |
+| 8.0 GA | 20513097 | 2022-10-11 | Initial Release |
+
+---
+
+## vCenter Server 8.0 Build Numbers
+
+| Version | Build | Release Date | Notes |
+|---------|-------|--------------|-------|
+| **8.0.3.00800 (8.0 U3i)** | **25197330** | **2026-02-24** | **VMSA-2026-0001 fix** |
+| 8.0.3.00700 (8.0 U3h) | 25092719 | 2025-12-15 | |
+| 8.0.3.00600 (8.0 U3g) | 24853646 | 2025-07-29 | |
+| 8.0.3.00500 (8.0 U3e) | 24674346 | 2025-04-10 | |
+| 8.0.2.00500 (8.0 U2e) | 24321653 | 2024-10-21 | VMSA-2024-0019 fix |
+| **8.0.3.00400 (8.0 U3d)** | **24322831** | **2024-10-21** | **VMSA-2024-0019 fix** |
+| 8.0.3.00300 (8.0 U3c) | 24305161 | 2024-10-10 | |
+| 8.0.3.00200 (8.0 U3b) | 24262322 | 2024-09-17 | |
+| 8.0.3.00100 (8.0 U3a) | 24091160 | 2024-07-18 | |
+| 8.0.3.00000 (8.0 U3) | 24022515 | 2024-06-25 | Major Update |
+| 8.0.2.00400 (8.0 U2d) | 23929136 | 2024-06-17 | |
+| 8.0.1.00500 (8.0 U1e) | 24005165 | 2024-06-17 | |
+| 8.0.2.00300 (8.0 U2c) | 23504390 | 2024-03-26 | |
+| 8.0.2.00200 (8.0 U2b) | 23319993 | 2024-02-29 | |
+| 8.0.2.00100 (8.0 U2a) | 22617221 | 2023-10-26 | |
+| 8.0.1.00400 (8.0 U1d) | 22368047 | 2023-10-24 | |
+| 8.0.2.00000 (8.0 U2) | 22385739 | 2023-09-21 | Major Update |
+| 8.0.1.00300 (8.0 U1c) | 22088981 | 2023-07-27 | |
+| 8.0.1.00200 (8.0 U1b) | 21860503 | 2023-06-22 | |
+| 8.0.1.00100 (8.0 U1a) | 21815093 | 2023-06-01 | |
+| 8.0.1.00000 (8.0 U1) | 21560480 | 2023-04-18 | Major Update |
+| 8.0.0.10300 (8.0c) | 21457384 | 2023-03-30 | |
+| 8.0.0.10200 (8.0b) | 21216066 | 2023-02-14 | |
+| 8.0.0.10100 (8.0a) | 20920323 | 2022-12-15 | |
+| 8.0.0.10000 (8.0 GA) | 20519528 | 2022-10-11 | Initial Release |
+
+---
+
 ## Quick Lookup
 
 ```bash
@@ -107,3 +183,15 @@ vpxd -v
 Get-VMHost | Select Name, Version, Build
 $global:DefaultVIServer | Select Name, Version, Build
 ```
+
+---
+
+## vSphere Lifecycle Summary
+
+| Product | Latest Version | EOL (End of General Support) | Status |
+|---------|---------------|------------------------------|--------|
+| ESXi 7.0 | 7.0 U3w (24784741) | 2025-10-02 | **EOL** — Technical Guidance until 2027-10-02 |
+| vCenter 7.0 | 7.0 U3y (24927011) | 2025-10-02 | **EOL** — Technical Guidance until 2027-10-02 |
+| ESXi 8.0 | 8.0 U3i (25205845) | TBD | **Active** |
+| vCenter 8.0 | 8.0 U3i (25197330) | TBD | **Active** |
+| ESXi 9.0 | 9.0 | TBD | **Active** — Latest major release |

@@ -18,6 +18,13 @@
 | [VMSA-2023-0023](https://www.vmware.com/security/advisories/VMSA-2023-0023.html) | vCenter DCERPC Out-of-Bounds Write RCE (CVE-2023-34048) — exploited by APT | APT 악용 vCenter RCE 패치 |
 | [VMSA-2024-0006](https://www.vmware.com/security/advisories/VMSA-2024-0006.html) | ESXi USB Controller Use-After-Free VM Escape (CVE-2024-22252/22253) — Pwn2Own | USB 컨트롤러 VM 탈출 취약점 패치 |
 | [VMSA-2024-0013](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/24505) | ESXi AD Authentication Bypass (CVE-2024-37085) — ransomware groups | 랜섬웨어 그룹 악용 AD 인증 우회 패치 |
+| [VMSA-2024-0019](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/25390) | vCenter DCERPC Heap-Overflow RCE (CVE-2024-38812) — actively exploited | vCenter RCE 긴급 패치 (CISA KEV) |
+| [VMSA-2025-0004](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/25390) | ESXi VM Escape Zero-Day Chain (CVE-2025-22224/22225/22226) — actively exploited | VM 탈출 제로데이 긴급 패치 (CISA KEV) |
+| [VMSA-2025-0010](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/securityAdvisories/0/25717) | vCenter Arbitrary Command Execution (CVE-2025-41225) | vCenter 명령 실행 취약점 패치 |
+| [VMSA-2025-0013](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/35877) | ESXi VMXNET3/VMCI/PVSCSI VM Escape (CVE-2025-41236/41237/41238) — 3x CVSS 9.3 | VM 탈출 Critical 3건 패치 |
+| [VMSA-2025-0015](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/36149) | VMware Tools LPE (CVE-2025-41244) — actively exploited | VMware Tools 권한 상승 패치 |
+| [VMSA-2025-0016](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/36150) | vCenter SMTP Injection / NSX Username Enum (CVE-2025-41250/41252) | vCenter/NSX 보안 패치 |
+| [VMSA-2026-0001](https://support.broadcom.com/web/ecx/support-content-notification/-/external/content/SecurityAdvisories/0/36947) | Aria Operations Command Injection RCE (CVE-2026-22719) — potential exploitation | Aria Ops RCE 긴급 패치 |
 | [CISAGOV ESXiArgs-Recover (GitHub)](https://github.com/cisagov/ESXiArgs-Recover) | CISA ESXiArgs recovery script for partially encrypted VMs | ESXiArgs 감염 VM 복구 스크립트 (CISA 제공) |
 | [DISA STIG vSphere 7.0](https://public.cyber.mil/stigs/downloads/) | DISA Security Technical Implementation Guide for VMware vSphere 7.0 ESXi | 미국방부 STIG 준수 점검 기준 |
 | [CIS VMware ESXi 7 Benchmark](https://www.cisecurity.org/benchmark/vmware) | CIS Benchmark for VMware ESXi 7 | CIS 벤치마크 기반 ESXi 보안 기준선 |
