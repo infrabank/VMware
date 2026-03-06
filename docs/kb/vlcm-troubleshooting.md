@@ -1,6 +1,8 @@
 # vSphere Lifecycle Manager (vLCM) Troubleshooting
 
-> Reference: [Broadcom KB 318195](https://knowledge.broadcom.com/external/article/318195), [Broadcom KB 373331](https://knowledge.broadcom.com/external/article/373331), [Broadcom KB 390121](https://knowledge.broadcom.com/external/article/390121)
+> Reference: [Broadcom KB 318195](https://knowledge.broadcom.com/external/article/318195), [Broadcom KB 373331](https://knowledge.broadcom.com/external/article/373331), [Broadcom KB 390121](https://knowledge.broadcom.com/external/article/390121), [Broadcom KB 322186](https://knowledge.broadcom.com/external/article/322186)
+
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 End of General Support에 도달했습니다. vSphere 8.0 이상으로 마이그레이션을 권장합니다.
 
 ## vLCM Overview
 
@@ -335,4 +337,72 @@ ls -la /storage/updatemgr/patch-store/
 # vLCM 관련 스케줄 작업 확인 (PostgreSQL)
 /opt/vmware/vpostgres/current/bin/psql -U postgres -d VCDB \
     -c "SELECT id, name, state FROM vpx_scheduled_task WHERE name LIKE '%Lifecycle%' OR name LIKE '%Update Manager%' OR name LIKE '%Notification%';"
+```
+
+---
+
+## vSphere 8.0 vLCM Changes / vSphere 8.0 vLCM 변경사항
+
+### Baseline 방식 공식 Deprecated (8.0)
+
+vSphere 8.0에서 **Baseline(VUM 방식) 패치 관리가 공식 deprecated** 되었으며, 차기 메이저 릴리스에서 완전 제거 예정입니다.
+
+```
+vSphere 8.0 기본 동작:
+- 새 클러스터 생성 시 vLCM Desired Image가 기본 선택
+- Desired Image로 전환하면 Baseline 모드로 되돌릴 수 없음
+- 기존 VUM Baseline 클러스터는 계속 사용 가능 (8.0에서)
+- 차기 메이저 릴리스(9.0+)에서 Baseline 완전 제거 예정
+```
+
+| 관리 모드 | vSphere 7.0 | vSphere 8.0 | vSphere 9.0+ |
+|-----------|:-----------:|:-----------:|:------------:|
+| Baseline (VUM) | 지원 | **Deprecated** | 제거 예정 |
+| vLCM Image | 지원 | **기본값** | 유일한 방식 |
+
+### Port 9087 문제 (8.0 U3+)
+
+vCenter 8.0 Update 3a부터 vLCM이 ESXi 호스트에 업데이트를 다운로드하는 방식이 변경되어, **포트 9087**이 ESXi ↔ vCenter 간 열려 있어야 합니다.
+
+```
+증상:
+- vLCM remediation 실패
+- "Unable to download files to the host" 오류
+
+진단:
+# vCenter에서 ESXi 호스트로 포트 9087 연결 확인
+curl -v https://<esxi-host>:9087/ 2>&1 | grep -i "connected"
+
+해결:
+- 방화벽에서 vCenter → ESXi 방향 TCP 9087 허용
+- ESXi 호스트 방화벽 확인: esxcli network firewall ruleset list | grep -i lifecycle
+```
+
+### VCF 환경 제한사항
+
+```
+- VCF 관리 클러스터에서는 vLCM Single Image 미지원
+- VCF 환경 라이프사이클 관리는 SDDC Manager가 담당
+- 향후 VCF 업데이트에서 VUM → vLCM 마이그레이션 가이드 제공 예정
+```
+
+### Baseline → Image 전환 권장 절차
+
+```powershell
+# 1. 현재 클러스터 관리 모드 확인 (PowerCLI)
+Get-Cluster | Select Name,
+    @{N="ManagementType";E={
+        if ($_.ExtensionData.ConfigurationEx.DefaultVLCMConfig) { "vLCM Image" }
+        else { "Baseline" }
+    }}
+
+# 2. 전환 전 체크리스트
+# - 현재 모든 호스트의 VIB 목록 백업
+# - 벤더 Add-on 가용성 확인 (HPE, Dell 등)
+# - 펌웨어 번들 HSM 통합 여부 확인
+# - VCF 관리 클러스터가 아닌지 확인
+
+# 3. vSphere Client에서 전환
+# Cluster → Updates → Image → Setup Image
+# ⚠️ 전환 후 Baseline 모드로 되돌릴 수 없음
 ```

@@ -1,5 +1,10 @@
 # Cluster Operations Guide
 
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료, 2027-10-02 기술 지침 종료 예정입니다.
+> vSphere 8.0에서는 HA Proactive Restart 개선, DRS 8.0 알고리즘 업데이트, vMotion 성능 향상 등이 추가되었습니다.
+> 본 문서의 HA/DRS/vMotion/EVC/FT 운영 절차는 8.0에서도 동일하게 적용됩니다.
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
+
 ## vSphere HA (High Availability)
 
 ### How HA Works

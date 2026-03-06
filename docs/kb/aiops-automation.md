@@ -1,5 +1,10 @@
 # VMware AIOps & Automation — Knowledge Base
 
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료 예정입니다.
+> pyVmomi 8.0은 vSphere 8.0 API를 지원하며, 본 문서의 자동화 패턴은 7.0/8.0 모두에 적용 가능합니다.
+> vSphere 8.0에서는 Aria Operations (구 vRealize Operations)로 리브랜딩되었습니다.
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
+
 AI 기반 VMware vCenter/ESXi 모니터링 및 운영 자동화 가이드.
 AI-powered VMware vCenter/ESXi monitoring and operations automation guide.
 

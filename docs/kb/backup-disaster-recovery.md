@@ -673,3 +673,58 @@ Get-VMHost | ForEach-Object {
 | KB 1020128 | ESXi configuration backup | https://kb.vmware.com/s/article/1020128 |
 | VDDK Programming Guide | QueryChangedDiskAreas API reference | https://developer.vmware.com/docs/11750/ |
 | SRM 8.x Documentation | Site Recovery Manager configuration | https://docs.vmware.com/en/Site-Recovery-Manager/ |
+| VMware Live Recovery | VMware Live Site Recovery (VLSR) — SRM 후속 제품 | https://www.vmware.com/products/cloud-infrastructure/live-recovery |
+| KB 312711 | VMware Live Site Recovery EOL announcements | https://knowledge.broadcom.com/external/article/312711 |
+| KB 311197 | VADP (vSphere Storage APIs – Data Protection) FAQ | https://knowledge.broadcom.com/external/article/311197 |
+
+---
+
+## vSphere 8.0 Changes / vSphere 8.0 변경사항
+
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 End of General Support에 도달했습니다.
+
+### SRM → VMware Live Site Recovery (VLSR) 리브랜딩
+
+VMware Site Recovery Manager (SRM)는 Broadcom 인수 후 **VMware Live Site Recovery (VLSR)**로 리브랜딩되었습니다.
+
+| 이전 제품명 | 새 제품명 | 비고 |
+|------------|----------|------|
+| VMware Site Recovery Manager (SRM) | VMware Live Site Recovery (VLSR) | 9.0부터 (2024-03) |
+| vSphere Replication | Enhanced vSphere Replication | 9.0.2.2부터 필수 |
+| - | VMware Live Recovery | VLSR + Live Cyber Recovery 통합 제품 |
+
+### Enhanced vSphere Replication (9.0.2+)
+
+```
+주요 변경:
+- Legacy vSphere Replication 구성은 9.0.2.2 이후 미지원
+- Enhanced Replication이 기본 (유일한) 사이트 간 복제 모드
+- RPO 최소 1분 (VLR 구독 적용 시, legacy 라이선스는 5분)
+- 자동 부하 분산: 30분마다 타겟 클러스터 내 호스트 간 자동 재분배
+- 네트워크 암호화 필수
+```
+
+### SRM EOL 타임라인
+
+| 버전 | EOL 날짜 |
+|------|---------|
+| SRM 8.5 | 2024-10-11 |
+| SRM 8.6 / 8.7 / 8.8 | 2025-10-11 |
+| VLSR 9.x | Active |
+
+### 라이선스 변경
+
+- SRM Standard/Enterprise/per-processor 영구 라이선스 → 갱신 불가
+- 확장 시 **VMware Live Recovery 구독 라이선스** 필수 (VM당 과금)
+
+### VADP — vSphere 8.0 주의사항
+
+```
+CBT (Changed Block Tracking) 버그:
+- vSphere 8.0.2에서 VM 디스크 핫 리사이즈 시 CBT 정보 불일치 발생 가능
+- 백업 데이터 손상 위험
+- Fix: ESXi 8.0 U2b (build 23305546) 이상으로 패치
+
+VADP for VM Service VMs:
+- vSphere 8.0 Supervisor에서 VM Service VM 백업/복원 VADP 지원 추가
+```

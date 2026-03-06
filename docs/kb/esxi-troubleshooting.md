@@ -1,5 +1,10 @@
 # ESXi Host Troubleshooting Guide
 
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료, 2027-10-02 기술 지침 종료 예정입니다.
+> vSphere 8.0 환경에서도 본 문서의 트러블슈팅 절차가 대부분 동일하게 적용됩니다.
+> ESXi 8.0 최신 빌드: 8.0 U3i (빌드 25205845, 2026-02-23)
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
+
 ## Host Not Responding / Disconnected in vCenter
 
 ### Symptoms

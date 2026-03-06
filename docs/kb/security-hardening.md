@@ -1,6 +1,8 @@
-# vSphere 7.0 Security Hardening Guide / 보안 강화 가이드
+# vSphere Security Hardening Guide / 보안 강화 가이드
 
-> Reference: [VMware vSphere 7.0 Security Configuration Guide](https://core.vmware.com/security-configuration-guide), [DISA STIG for VMware vSphere 7.0](https://public.cyber.mil/stigs/downloads/), [CIS VMware ESXi 7 Benchmark](https://www.cisecurity.org/benchmark/vmware)
+> Reference: [VMware vSphere 7.0 Security Configuration Guide](https://core.vmware.com/security-configuration-guide), [vSphere 8.0 Security Configuration Guide](https://core.vmware.com/vmware-vsphere-8-security-configuration-guide), [DISA STIG for VMware vSphere 7.0](https://public.cyber.mil/stigs/downloads/), [CIS VMware ESXi 7 Benchmark](https://www.cisecurity.org/benchmark/vmware)
+
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 End of General Support에 도달했습니다. 보안 패치가 더 이상 제공되지 않으므로, vSphere 8.0 이상으로 마이그레이션하고 vSphere 8.0 SCG를 적용하세요.
 
 ---
 
@@ -1615,4 +1617,70 @@ foreach ($vm in $vms) {
 
 Write-Host "Snapshots created for $($vms.Count) VMs. Proceed with patching."
 Write-Host "IMPORTANT: Remove snapshots within 72 hours after patch validation."
+```
+
+---
+
+## vSphere 8.0 Security Configuration Guide / vSphere 8.0 보안 구성 가이드
+
+> Reference: [vSphere 8.0 SCG](https://core.vmware.com/vmware-vsphere-8-security-configuration-guide), [vSphere 8.0 SCG (GitHub)](https://github.com/vmware/vcf-security-and-compliance-guidelines), [Broadcom TechDocs Security Controls](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/vsphere/8-0/vsphere-security-8-0/understanding-vsphere-hardening-and-compliance/understanding-vsphere-security-configuration-guide.html)
+
+### 7.0 → 8.0 SCG 주요 변경사항
+
+| 영역 | vSphere 7.0 SCG | vSphere 8.0 SCG |
+|------|:---:|:---:|
+| 명칭 | Security Configuration Guide | Security Configuration & Hardening Guide (통합) |
+| 컨트롤 ID | `esxi-7.*`, `vcenter-7.*` | `esxi-8.*`, `vcenter-8.*`, `guest-8.*` |
+| 신규 섹션 | - | **System Design**, **Hardware Configuration**, **Implementation Priorities** |
+| 우선순위 | 없음 | P0 (최고) ~ P2 체계 도입 |
+| 변경 추적 | 없음 | "Changes Highlighted" 컬럼 추가 |
+| PowerCLI | v12.x | v13.0 호환 명령 업데이트 |
+| VCF 통합 | 별도 | SCG에 VCF 가이드 통합 |
+| 문서 위치 | 별도 Excel 다운로드 | 8.0 U3부터 **공식 문서에 직접 포함** |
+
+### vSphere 8.0 주요 신규 보안 컨트롤
+
+| 컨트롤 ID | 우선순위 | 설명 |
+|-----------|:---:|------|
+| `esxi-8.secureboot` | P0 | ESXi Secure Boot 강제 활성화 |
+| `hw-8.hardware-tpm` | P0 | TPM 2.0 설치 및 활성화 권장 |
+| `guest-8.virtual-hardware` | P1 | VM 하드웨어 버전 19 이상 강제 |
+| `esxi-8.ssh-fips-ciphers` | P1 | SSH FIPS 140-2/140-3 검증 암호만 사용 |
+| `vcenter-8.vami-administration-password-expiration` | P0 | VAMI 관리자 비밀번호 만료 설정 |
+| `vcenter-8.etc-issue` | P1 | 로그인 배너 설정 |
+
+### TPM 2.0 — vSphere 8.0 보안 강화
+
+```
+vSphere 8.0에서 TPM 2.0 활용:
+- ESXi 호스트 구성 암호화 (Secure Boot + TPM = 설정 파일 암호화)
+- 호스트 Attestation (원격 검증)
+- vTPM (Virtual TPM): Windows 11/Server 2022 게스트에 가상 TPM 제공
+- Key Provider 연동: vCenter Native Key Provider 또는 KMS
+
+확인:
+# ESXi 호스트에서 TPM 상태 확인
+esxcli hardware tpm get
+# vCenter에서 Trusted Clusters 설정
+# Cluster → Configure → Security → Attestation
+```
+
+### vSphere 8.0 SCG 적용 PowerCLI (v13.0+)
+
+```powershell
+# Secure Boot 활성화 확인
+Get-VMHost | Select Name,
+    @{N="SecureBoot";E={$_.ExtensionData.Runtime.BootTime}} # 간접 확인
+
+# ESXi SSH FIPS 암호 설정 확인
+Get-VMHost | ForEach-Object {
+    $esxcli = Get-EsxCli -VMHost $_ -V2
+    $esxcli.system.security.fips140.ssh.get.Invoke()
+}
+
+# VM 하드웨어 버전 점검 (v19 이상 권장)
+Get-VM | Select Name,
+    @{N="HWVersion";E={$_.ExtensionData.Config.Version}},
+    @{N="Compliant";E={[int]($_.ExtensionData.Config.Version -replace 'vmx-','') -ge 19}} |
+    Where-Object { -not $_.Compliant }
 ```

@@ -1,5 +1,10 @@
 # VMware Log Analysis Guide
 
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료 예정입니다.
+> ESXi 8.0 및 vCenter 8.0의 로그 경로와 분석 절차는 7.0과 동일합니다.
+> vCenter 8.0에서는 `envoy` 로그(`/var/log/vmware/envoy/`)가 추가되었으며, Aria Operations for Logs와의 통합이 강화되었습니다.
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
+
 ## ESXi Log Locations
 
 | Log File | Path | Purpose |

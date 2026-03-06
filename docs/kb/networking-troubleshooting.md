@@ -1,5 +1,10 @@
 # Networking Troubleshooting Guide
 
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료, 2027-10-02 기술 지침 종료 예정입니다.
+> vSphere 8.0에서는 DPU(SmartNIC) 기반 네트워킹, NSX 4.x 통합, vDS 8.0 개선 등이 추가되었습니다.
+> 본 문서의 vSwitch/vDS, VLAN, VMkernel, NIC teaming 트러블슈팅 절차는 8.0에서도 동일하게 적용됩니다.
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
+
 ## VM Network Connectivity Issues
 
 ### Diagnostic Steps

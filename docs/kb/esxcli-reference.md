@@ -1,5 +1,9 @@
 # esxcli Command Reference
 
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료 예정입니다.
+> ESXi 8.0에서도 esxcli 명령 체계는 동일하며, `esxcli nvme`, `esxcli hardware tpm`, `esxcli system livepatch` 등 새 namespace가 추가되었습니다.
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
+
 ## System
 
 ```bash

@@ -1,5 +1,10 @@
 # ESXi PSOD (Purple Screen of Death) Troubleshooting
 
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료 예정입니다.
+> PSOD 분석 절차(backtrace 해석, coredump 수집, MCE/NMI 분석)는 ESXi 8.0에서도 동일하게 적용됩니다.
+> ESXi 8.0에서는 Live Patch 기능으로 일부 커널 패치를 재부팅 없이 적용할 수 있습니다.
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
+
 > Reference: [Broadcom KB 343033](https://knowledge.broadcom.com/external/article/343033), [Broadcom KB 1006791](https://kb.vmware.com/s/article/1006791), [Dell PSOD MCE Guide](https://www.dell.com/support/kbdoc/en-us/000215212)
 
 ## PSOD Overview

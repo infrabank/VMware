@@ -1,5 +1,10 @@
 # vSphere Certificate Management & STS Troubleshooting
 
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료 예정입니다.
+> vCenter 8.0에서도 STS 인증서 만료, Machine SSL, certificate-manager 절차는 동일합니다.
+> vSphere 8.0에서는 인증서 자동 갱신(Auto-Renewal) 기능이 강화되었습니다.
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
+
 > Reference: [Broadcom KB 79248](https://knowledge.broadcom.com/external/article/318968), [KB 76719](https://kb.vmware.com/s/article/76719), [KB 83558](https://kb.vmware.com/s/article/83558)
 
 ## Certificate Architecture Overview

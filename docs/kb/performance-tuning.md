@@ -874,3 +874,66 @@ esxcli storage nmp psp roundrobin deviceconfig set -d naa.xxxxxxxx -t iops -I 1
 - [vSphere Resource Management Guide](https://docs.vmware.com/en/VMware-vSphere/7.0/vsphere-resource-management.pdf)
 - [vSphere Monitoring and Performance Guide](https://docs.vmware.com/en/VMware-vSphere/7.0/vsphere-monitoring-performance.pdf)
 - [vSAN Design and Sizing Guide](https://core.vmware.com/resource/vsan-design-and-sizing-guide)
+
+### vSphere 8.0 공식 문서 / vSphere 8.0 Official Documentation
+
+- [Performance Best Practices for vSphere 8.0 Update 3](https://www.vmware.com/docs/vsphere-esxi-vcenter-server-80U3-performance-best-practices)
+- [Performance Tuning for Latency-Sensitive Workloads (2025-01)](https://www.vmware.com/docs/perf-latency-tuning-vsphere8)
+- [Performance Best Practices for vSphere 9.0](https://www.vmware.com/docs/vsphere-esxi-vcenter-server-90-performance-best-practices)
+
+---
+
+## vSphere 8.0 Performance Changes / vSphere 8.0 성능 변경사항
+
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 End of General Support에 도달했습니다. 성능 관련 패치도 더 이상 제공되지 않습니다.
+
+### DPU (Data Processing Unit) / Distributed Services Engine
+
+vSphere 8.0에서 DPU(SmartNIC)를 통한 vSphere 서비스 오프로드가 도입되었습니다.
+
+```
+DPU 아키텍처:
+- DPU 위에 별도의 ESXi 인스턴스 실행
+- 메인 ESXi(x86)와 DPU ESXi 간 프라이빗 IPv4 채널 통신
+- VMXNET3 UPTv2 모드: VM 네트워크 트래픽을 DPU에 직접 전달
+- DRS, HA 등 vSphere 기능과 호환 유지
+
+vSphere 8.0 U3 추가:
+- 듀얼 DPU 지원 (Active/Standby HA 또는 Dual Independent)
+- NVIDIA, Pensando DPU 지원
+- vLCM을 통한 DPU 라이프사이클 관리 통합
+```
+
+| DPU 모드 | 설명 | 용도 |
+|---------|------|------|
+| Active/Standby | 1개 DPU 장애 시 자동 페일오버 | 고가용성 |
+| Dual Independent | 2개 DPU로 오프로드 용량 2배 | 고성능 |
+
+### 레이턴시 민감 워크로드 튜닝 (vSphere 8.0)
+
+```bash
+# esxtop에서 VM Tx 스레드 식별
+# CPU 패널 확장 → NetWorld-Dev-xxx-TX 월드 확인
+# VM Tx 스레드를 이그레스 NIC과 동일 NUMA 노드의 물리 CPU에 핀
+
+# 레이턴시 민감도 설정 (VM 수준)
+# vSphere Client → VM Settings → Advanced → Latency Sensitivity = High
+# → vCPU가 물리 CPU 코어에 배타적 할당됨
+```
+
+### vSphere 8.0 U3 성능 관련 신기능
+
+| 기능 | 설명 |
+|------|------|
+| Intel Xeon Max HBM 지원 | 64 GB 통합 HBM, HPC/AI/ML 워크로드 |
+| C-State 제어 (vRAN) | vSphere Client에서 vRAN VM 전용 물리 CPU C-State 설정 |
+| Live Patch | 호스트 리부팅 없이 ESXi 패치 적용 (TPM/DPU 미사용 시) |
+
+### esxtop CPU 부하 기준 (8.0 동일)
+
+```
+esxtop CPU 패널 첫 줄 Load Average:
+- >= 1.0: 과부하 (overloaded)
+- 80% 사용률: 합리적 상한선
+- 90% 사용률: 경고 수준 (CPU 과부하 접근)
+```

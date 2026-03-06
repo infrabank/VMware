@@ -1,5 +1,10 @@
 # Storage Troubleshooting Guide
 
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료, 2027-10-02 기술 지침 종료 예정입니다.
+> vSphere 8.0에서는 NVMe-oF, vVol 3.0 개선, vSAN ESA (Express Storage Architecture) 등 스토리지 기능이 대폭 강화되었습니다.
+> 본 문서의 APD/PDL, VMFS, iSCSI, NFS 트러블슈팅 절차는 8.0에서도 동일하게 적용됩니다.
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
+
 ## APD (All Paths Down)
 
 ### Symptoms

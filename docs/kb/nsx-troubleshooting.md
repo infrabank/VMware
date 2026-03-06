@@ -1,6 +1,11 @@
 # NSX-T Operations and Troubleshooting Guide
 # NSX-T 운영 및 트러블슈팅 가이드
 
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료 예정입니다.
+> NSX-T 3.x는 vSphere 7.0과 함께 EOL 예정이며, NSX 4.x가 vSphere 8.0의 권장 버전입니다.
+> NSX 4.x에서는 NSX Application Platform, Project Antrea 통합, DPU 기반 DFW 가속이 추가되었습니다.
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
+
 > **Scope / 범위**: VMware NSX-T 2.x / 3.x / 4.x — API automation, DFW operations, load balancer, transport node troubleshooting
 > **Source**: Derived from [vmware-samples/nsx-t](https://github.com/vmware-samples/nsx-t) sample code and official NSX-T documentation patterns.
 > **Language**: Bilingual Korean/English

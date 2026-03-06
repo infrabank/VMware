@@ -1,4 +1,9 @@
-# PowerCLI Reference for vSphere 7.0
+# PowerCLI Reference for vSphere
+
+> **vSphere 7.0 EOL Notice**: vSphere 7.0은 2025-10-02 일반 지원 종료 예정입니다.
+> PowerCLI 13.x는 vSphere 7.0과 8.0 모두 지원합니다. 최신 버전: PowerCLI 13.3 (2024-11).
+> vSphere 8.0 전용 cmdlet: `Get-VLCMImage`, `Set-SecurityPolicy`, `Get-VTpm` 등이 추가되었습니다.
+> 참고: [Broadcom KB 322186 — vSphere 7.0 EOL](https://knowledge.broadcom.com/external/article/322186)
 
 > Reference: [VMware PowerCLI Documentation](https://developer.vmware.com/powercli), [PowerCLI User Guide](https://developer.vmware.com/docs/powercli/latest/), [PowerShell Gallery](https://www.powershellgallery.com/packages/VMware.PowerCLI)
 
