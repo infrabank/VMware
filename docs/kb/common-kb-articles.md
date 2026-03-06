@@ -191,6 +191,14 @@
 | [KB 2107796](https://kb.vmware.com/s/article/2107796) | VMware Tools quiescing failures | VSS / pre-freeze 퀴싱 실패 진단 |
 | [KB 2146192](https://kb.vmware.com/s/article/2146192) | PVSCSI driver performance best practices | PVSCSI 성능 권장 설정 |
 | [KB 1001805](https://kb.vmware.com/s/article/1001805) | VMXNET3 adapter overview | VMXNET3 드라이버 개요 및 설정 |
+| [KB 304809](https://knowledge.broadcom.com/external/article/304809) | Build numbers and versions of VMware Tools | Tools 빌드 번호 ↔ 버전 매핑 |
+| [KB 313456](https://knowledge.broadcom.com/external/article/313456) | VMware support for open-vm-tools | open-vm-tools 공식 지원 범위 |
+| [KB 313876](https://knowledge.broadcom.com/external/article/313876) | Manually installing/upgrading VMware Tools on hosts | 호스트에 수동 Tools 설치/업그레이드 |
+| [KB 368758](https://knowledge.broadcom.com/external/article/368758) | Downloading VMware Tools | VMware Tools 다운로드 안내 |
+| [Broadcom Tools Repo](https://packages-prod.broadcom.com/tools/) | Broadcom packages-prod repository index | Broadcom 공식 Tools 패키지 저장소 (레거시 OS + Windows ISO + GPG 키) |
+| [Broadcom Tools version-mapping](https://packages-prod.broadcom.com/tools/versions) | ESXi build ↔ Tools version mapping file | ESXi 빌드 번호와 Tools 버전 매핑 |
+| [VMware Tools 12.5.4 Release Notes](https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/tools/12-5-0/release-notes/vmware-tools-1254-release-notes.html) | VMware Tools 12.5.4 Release Notes (CVE-2025-41244/41246) | Tools 12.5.4 보안 패치 및 릴리스 노트 |
+| [open-vm-tools GitHub](https://github.com/vmware/open-vm-tools) | open-vm-tools source code and releases | open-vm-tools 소스 코드 및 stable 태그 |
 
 ---
 

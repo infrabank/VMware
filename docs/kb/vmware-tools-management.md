@@ -672,7 +672,248 @@ for vm in vms:
 
 ---
 
-## 10. References / 참고자료
+## 10. Broadcom 패키지 저장소 구조 / Broadcom Package Repository Structure
+
+> Reference: [VMware Tools version-mapping file](https://packages-prod.broadcom.com/tools/versions), [KB 368758](https://knowledge.broadcom.com/external/article/368758/downloading-vmware-tools.html), [KB 313876](https://knowledge.broadcom.com/external/article/313876/installing-and-upgrading-the-latest-vers.html)
+
+### 10.1 저장소 전체 구조 / Repository Layout
+
+Broadcom은 `packages-prod.broadcom.com/tools/` 에서 VMware Tools 패키지를 배포합니다. 세 가지 경로가 있으며, 용도가 명확히 구분됩니다.
+
+```
+https://packages-prod.broadcom.com/tools/
+├── esx/{version}/          ← Bundled VMware Tools (레거시 OS 전용 패키지 repo)
+│   ├── repos/              ← repo 설정 RPM/DEB (RHEL6, SLES11, Ubuntu 10~12 전용)
+│   ├── rhel6/              ← RHEL 6 RPM 패키지
+│   ├── sles11sp{0-4}/      ← SLES 11 SP0~SP4 RPM 패키지
+│   ├── ubuntu/dists/       ← Ubuntu 10.04~12.04 DEB 패키지
+│   └── windows/            ← Windows ISO
+│
+├── releases/{version}/     ← VMware Tools ISO 릴리스 (Windows ISO + 서명 파일)
+│   └── 12.5.4/
+│       ├── VMware-tools-windows-12.5.4-24964629.iso
+│       ├── VMware-tools-windows-arm-12.5.4-24964629.iso
+│       └── (*.sha, *.sig 검증 파일)
+│
+├── keys/                   ← GPG 패키지 서명 키
+│   ├── VMWARE-PACKAGING-GPG-RSA-KEY.pub
+│   └── VMWARE-PACKAGING-GPG-DSA-KEY.pub
+│
+├── open-vm-tools/          ← ARM tech preview만 존재
+│   └── ovt-arm-tech-preview/
+│
+└── versions                ← ESXi 빌드 ↔ Tools 버전 매핑 파일
+```
+
+### 10.2 esx/ 경로의 OS 지원 범위 / Supported OS in esx/ Path
+
+`esx/{version}/` 경로는 **레거시 Linux 배포판 전용**이며, 현대 배포판(RHEL 8+, Ubuntu 20.04+, SLES 15+)용 패키지는 포함하지 않습니다.
+
+| esx/ 하위 경로 | 대상 OS | 현재 상태 |
+|----------------|---------|-----------|
+| `rhel6/` | RHEL 6 (x86_64, i386) | EOL — 레거시 전용 |
+| `sles11sp{0-4}/` | SLES 11 SP0~SP4 | EOL — 레거시 전용 |
+| `ubuntu/dists/` | Ubuntu 10.04 (lucid), 11.04 (natty), 11.10 (oneiric), 12.04 (precise) | EOL — 레거시 전용 |
+| `windows/` | Windows (전 버전) | 활성 |
+| `repos/` | 위 레거시 OS에 대한 repo 설정 RPM/DEB | 레거시 전용 |
+
+> **주의**: `esx/8.0p08/repos/`에 접근하면 RHEL6, SLES11, Ubuntu 10~12용 repo 설정 패키지만 존재합니다. RHEL 8/9, Ubuntu 20.04+ 등 현대 배포판 패키지는 없습니다.
+
+### 10.3 ESXi 버전별 경로 매핑 / ESXi Version Path Mapping
+
+`esx/` 아래의 전체 ESXi 버전 디렉토리:
+
+| ESXi 계열 | 사용 가능 경로 |
+|-----------|---------------|
+| 7.0 | `7.0`, `7.0u1`, `7.0u2`, `7.0u3`, `7.0p01`~`7.0p10` |
+| 8.0 | `8.0`, `8.0u1`, `8.0u2`, `8.0u3`, `8.0p01`~`8.0p08` |
+| 9.0 | `9.0`, `9.0.1.0`, `9.0.2.0` |
+| 공통 | `latest` (최신 버전 심볼릭 링크) |
+
+### 10.4 releases/ 경로 — VMware Tools ISO 릴리스 / ISO Releases
+
+`releases/` 경로에는 VMware Tools ISO(주로 Windows용)와 서명 파일이 배포됩니다.
+
+```
+releases/ 에서 확인된 12.x 버전:
+12.0.0, 12.0.5, 12.0.6, 12.1.0, 12.1.5, 12.2.0, 12.2.5, 12.2.6,
+12.3.0, 12.3.5, 12.4.0, 12.4.5, 12.4.6, 12.4.7, 12.4.8, 12.4.9,
+12.5.0, 12.5.1, 12.5.2, 12.5.3, 12.5.4
+
+최신 13.x:
+13.0.0, 13.0.1, 13.0.5, 13.0.10
+```
+
+### 10.5 VMware Tools 12.5.4 버전 정보 / Version Details
+
+| 항목 | 값 |
+|------|-----|
+| **VMware Tools 버전** | 12.5.4 |
+| **내부 버전 코드** | 12452 |
+| **빌드 번호** | 24964629 |
+| **번들 ESXi** | 8.0p07 (build 25067014), 8.0p08 (build 25205845) |
+| **open-vm-tools 태그** | `stable-12.5.4` (GitHub) |
+| **보안 수정** | CVE-2025-41244, CVE-2025-41246 (VMSA-2025-0015) |
+| **릴리스 날짜** | 2025-09-30 |
+| **32-bit Windows** | VMware Tools 12.4.9로 포함 |
+
+### 10.6 VMware Tools vs open-vm-tools 빌드 주체 비교 / Build Origin Comparison
+
+VMware Tools와 open-vm-tools는 **동일 소스코드**(github.com/vmware/open-vm-tools)를 기반으로 하지만, 빌드 주체와 패치 주기가 다릅니다.
+
+| 항목 | Broadcom 빌드 (releases/ ISO) | Distro 빌드 (dnf/apt/zypper) |
+|------|:---:|:---:|
+| **빌드 주체** | Broadcom/VMware | Red Hat, Canonical, SUSE |
+| **패키지 형태** | ISO (Windows), 레거시 RPM/DEB | OS 네이티브 RPM/DEB |
+| **패치 주기** | VMware Tools 릴리스 주기 (빠름) | Distro 릴리스 주기 (보수적, backport) |
+| **버전** | 최신 (예: 12.5.4) | Distro 고정 (예: RHEL 9 → 12.2.x + backport) |
+| **커널 호환** | VMware 테스트 범위 | Distro 커널 최적화 |
+| **보안 패치** | VMware CVE 직접 릴리스 | Distro backport (느릴 수 있음) |
+| **지원 채널** | Broadcom/VMware 지원 | OS 벤더 지원 |
+
+### 10.7 현대 Linux 배포판 설치 경로 / Installation Path for Modern Linux
+
+Broadcom 공식 권고: **Linux은 OS 벤더의 open-vm-tools 패키지를 사용하라.**
+
+```
+[GitHub: vmware/open-vm-tools]
+       stable-12.5.4 태그 (소스 공개)
+              │
+    ┌─────────┼──────────┬──────────┐
+  Red Hat   Canonical    SUSE     기타 벤더
+  자체 빌드   자체 빌드   자체 빌드   자체 빌드
+    │          │          │          │
+  RHEL repo  Ubuntu repo SLES repo  ...
+  (dnf)      (apt)       (zypper)
+```
+
+```bash
+# RHEL 8/9, Rocky, AlmaLinux
+dnf info open-vm-tools              # 현재 제공 버전 확인
+dnf update open-vm-tools            # 업그레이드
+
+# Ubuntu 22.04 / 24.04
+apt-cache policy open-vm-tools      # 현재 제공 버전 확인
+apt-get update && apt-get upgrade open-vm-tools
+
+# SLES 15
+zypper info open-vm-tools
+zypper refresh && zypper update open-vm-tools
+```
+
+### 10.8 CVE 긴급 패치 — Distro 미반영 시 / Emergency CVE Patching
+
+Distro가 아직 12.5.4를 반영하지 않았으나 CVE-2025-41244/41246 패치가 긴급한 경우:
+
+```bash
+# 방법 1: GitHub 소스 빌드
+git clone -b stable-12.5.4 https://github.com/vmware/open-vm-tools.git
+cd open-vm-tools/open-vm-tools
+autoreconf -fi
+./configure --without-kernel-modules
+make && sudo make install
+
+# 방법 2: CVE 패치만 backport (기존 버전 유지)
+# Broadcom 제공 패치 브랜치:
+git clone -b CVE-2025-41244.patch https://github.com/vmware/open-vm-tools.git
+# 기존 open-vm-tools SRPM/소스에 패치 적용 후 재빌드
+```
+
+### 10.9 에어갭 환경 내부 미러링 / Air-Gapped Environment Mirroring
+
+인터넷이 차단된 에어갭 환경에서는 내부 미러 서버를 통해 배포합니다.
+
+#### 방법 A: reposync + Nginx (RPM 배포판)
+
+```bash
+# [Bastion 서버] 인터넷 연결 가능한 서버에서 동기화
+dnf install -y yum-utils createrepo_c
+
+# 레거시 Broadcom repo 동기화 (RHEL6/SLES11 필요 시)
+reposync --repoid=vmware-tools-8p08 \
+  --download-path=/data/mirror/vmware-tools/8.0p08/x86_64 \
+  --download-metadata
+createrepo_c /data/mirror/vmware-tools/8.0p08/x86_64
+
+# 현대 배포판: Distro repo에서 open-vm-tools 패키지 다운로드
+dnf download open-vm-tools --resolve --destdir=/data/mirror/ovt-pkgs/  # RHEL 8/9
+createrepo_c /data/mirror/ovt-pkgs/
+
+# GPG 키 저장
+curl -o /data/mirror/vmware-tools/RPM-GPG-KEY-VMWARE \
+  https://packages-prod.broadcom.com/tools/keys/VMWARE-PACKAGING-GPG-RSA-KEY.pub
+
+# [내부망] tar + 물리 매체 반입
+tar czf vmware-tools-mirror-$(date +%Y%m%d).tar.gz -C /data/mirror .
+# USB/DVD → 내부망 미러 서버로 반입 후:
+tar xzf vmware-tools-mirror-*.tar.gz -C /var/www/html/vmware-tools/
+
+# Nginx 서빙
+cat > /etc/nginx/conf.d/vmware-tools.conf << 'EOF'
+server {
+    listen 80;
+    server_name mirror.internal.company.com;
+    root /var/www/html;
+    autoindex on;
+    location /vmware-tools/ { autoindex on; }
+}
+EOF
+systemctl enable --now nginx
+```
+
+#### 방법 B: apt-mirror (Ubuntu/Debian)
+
+```bash
+# [Bastion 서버]
+apt-get install -y apt-mirror
+
+# Distro repo에서 open-vm-tools 다운로드
+apt-get download open-vm-tools                                    # Ubuntu
+# 또는 GitHub 소스 tarball
+wget https://github.com/vmware/open-vm-tools/archive/refs/tags/stable-12.5.4.tar.gz
+
+# [내부망] 반입 후 설치
+dpkg -i /path/to/open-vm-tools_*.deb
+```
+
+#### 방법 C: Nexus Repository Manager (엔터프라이즈)
+
+```
+RPM + DEB 동시 관리, RBAC 접근 제어, 감사 로그 지원
+Nexus UI → Repositories → Create Repository
+  - yum (hosted): vmware-tools
+  - apt (hosted): vmware-tools-apt
+패키지 업로드 후 클라이언트에서 Nexus URL로 repo 설정
+```
+
+#### 미러링 방법 비교
+
+| 항목 | Nginx + reposync | apt-mirror | Nexus |
+|------|:---:|:---:|:---:|
+| 설정 난이도 | 낮음 | 낮음 | 중간 |
+| RPM + DEB 동시 | 별도 구성 | DEB만 | 모두 지원 |
+| 접근 제어(RBAC) | 없음 | 없음 | 있음 |
+| 감사 로그 | 없음 | 없음 | 있음 |
+| 권장 환경 | 소규모 단일 OS | Ubuntu 중심 | 엔터프라이즈 다중 OS |
+
+### 10.10 권장 사항 요약 / Recommendation Summary
+
+| 상황 | 권장 설치 경로 | 이유 |
+|------|---------------|------|
+| 일반 프로덕션 Linux | Distro 기본 repo (`dnf`/`apt`/`zypper`) | OS 벤더가 커널과 함께 테스트, 자동 관리 |
+| VMware CVE 긴급 패치 | GitHub 소스 빌드 (`stable-12.5.4`) | Distro backport보다 빠른 패치 적용 |
+| VMware 기술지원(SR) 요청 시 | Broadcom 빌드 사용 | VMware 지원팀이 자사 빌드 기준 분석 |
+| OS 벤더 지원계약 중심 | Distro 기본 repo | Red Hat/Canonical/SUSE 지원팀은 자사 빌드만 공식 지원 |
+| 레거시 OS (RHEL 6, SLES 11) | Broadcom `esx/` repo | 레거시 OS용 유일한 경로 |
+| Windows 게스트 | `releases/12.5.4/` ISO | Windows는 ISO 설치만 가능 |
+| 에어갭 환경 | 내부 미러 (Nginx/Nexus) | 외부 인터넷 차단 시 |
+
+> **주의: Broadcom repo와 Distro repo를 동시에 활성화하면 버전 충돌 발생 가능.**
+> 하나만 활성화하거나, Distro repo에서 `exclude=open-vm-tools*`로 제외 설정 필요.
+
+---
+
+## 11. References / 참고자료
 
 | Resource | Description | URL |
 |----------|-------------|-----|
@@ -684,5 +925,14 @@ for vm in vms:
 | KB 2107796 | VMware Tools quiescing failures | https://kb.vmware.com/s/article/2107796 |
 | KB 2146192 | PVSCSI driver performance best practices | https://kb.vmware.com/s/article/2146192 |
 | KB 1001805 | VMXNET3 adapter overview | https://kb.vmware.com/s/article/1001805 |
+| KB 304809 | Build numbers and versions of VMware Tools | https://knowledge.broadcom.com/external/article/304809 |
+| KB 313456 | VMware support for open-vm-tools | https://knowledge.broadcom.com/external/article/313456 |
+| KB 313876 | Manually installing/upgrading VMware Tools on hosts | https://knowledge.broadcom.com/external/article/313876 |
+| KB 368758 | Downloading VMware Tools | https://knowledge.broadcom.com/external/article/368758 |
+| VMSA-2025-0015 | VMware Tools CVE-2025-41244/41246 | https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/tools/12-5-0/release-notes/vmware-tools-1254-release-notes.html |
+| VMware Tools 12.5.4 Release Notes | Release notes for Tools 12.5.4 | https://techdocs.broadcom.com/us/en/vmware-cis/vsphere/tools/12-5-0/release-notes/vmware-tools-1254-release-notes.html |
+| Broadcom Tools version-mapping | ESXi build ↔ Tools version mapping file | https://packages-prod.broadcom.com/tools/versions |
+| Broadcom Tools releases | VMware Tools ISO downloads | https://packages-prod.broadcom.com/tools/releases/ |
+| Broadcom Tools GPG keys | Package signing keys (RSA/DSA) | https://packages-prod.broadcom.com/tools/keys/ |
 | VMware Tools Docs | Official VMware Tools documentation | https://docs.vmware.com/en/VMware-Tools/ |
 | open-vm-tools GitHub | open-vm-tools source and releases | https://github.com/vmware/open-vm-tools |
