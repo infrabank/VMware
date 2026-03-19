@@ -14,10 +14,12 @@
 4. [Solution B: FSLogix Profile Container](#4-solution-b-fslogix-profile-container)
 5. [Solution C: Hybrid Approach (Recommended)](#5-solution-c-hybrid-approach-recommended)
 6. [Solution D: FSLogix with User Data Reset (Selective Persistence)](#6-solution-d-fslogix-with-user-data-reset-selective-persistence)
-7. [Horizon Instant Clone Optimization Checklist](#7-horizon-instant-clone-optimization-checklist)
-8. [Diagnostic Commands](#8-diagnostic-commands)
-9. [Log File Locations](#9-log-file-locations)
-10. [References](#10-references)
+7. [Master VM Default Profile Update Procedure](#7-master-vm-default-profile-update-procedure)
+8. [Logoff Script / redirections.xml Not Working — Troubleshooting](#8-logoff-script--redirectionsxml-not-working--troubleshooting)
+9. [Horizon Instant Clone Optimization Checklist](#9-horizon-instant-clone-optimization-checklist)
+10. [Diagnostic Commands](#10-diagnostic-commands)
+11. [Log File Locations](#11-log-file-locations)
+12. [References](#12-references)
 
 ---
 
@@ -723,7 +725,321 @@ Q: "Updating Store App" message 제거가 필요한가?
 
 ---
 
-## 7. Horizon Instant Clone Optimization Checklist
+## 7. Master VM Default Profile Update Procedure
+
+> Master VM에서 Default Profile을 업데이트할 때, FSLogix가 활성화되어 있으면 로그오프 시 프로필이 삭제되어 DefProf 복사 소스가 사라집니다. 반드시 FSLogix를 비활성화한 상태에서 작업해야 합니다.
+>
+> When updating the Default Profile on a Master VM with FSLogix enabled, the admin profile is deleted on logoff (due to `DeleteLocalProfileWhenVHDShouldApply=1`), leaving no source for DefProf. FSLogix must be disabled during this procedure.
+
+### The Problem / 문제
+
+```
+FSLogix Enabled=1 상태에서:
+  Domain Admin 로그인 → 커스터마이징 작업 → 로그오프
+  → FSLogix VHD 언마운트 → DeleteLocalProfileWhenVHDShouldApply=1
+  → 로컬 프로필 삭제됨 → DefProf 복사 소스 없음
+```
+
+### Procedure / 절차
+
+```powershell
+# === Step 1: FSLogix 비활성화 (Master VM에서) ===
+Set-ItemProperty -Path "HKLM:\SOFTWARE\FSLogix\Profiles" -Name "Enabled" -Value 0
+Restart-Service frxsvc
+
+# === Step 2: 작업 계정으로 로그인 → 커스터마이징 → 로그아웃 ===
+# (FSLogix 비활성이므로 로그오프해도 로컬 프로필 유지됨)
+
+# === Step 3: 다른 Admin 계정으로 로그인 후 DefProf 실행 ===
+DefProf.exe DOMAIN\adminuser
+
+# === Step 4: Default Profile 업데이트 확인 ===
+Test-Path "C:\Users\Default\NTUSER.DAT"
+
+# === Step 5: 작업 계정 프로필 정리 (선택) ===
+Get-CimInstance Win32_UserProfile | Where-Object { $_.LocalPath -eq "C:\Users\adminuser" } | Remove-CimInstance
+
+# === Step 6: FSLogix 재활성화 ===
+Set-ItemProperty -Path "HKLM:\SOFTWARE\FSLogix\Profiles" -Name "Enabled" -Value 1
+Restart-Service frxsvc
+
+# === Step 7: Snapshot → Push Image ===
+```
+
+### Alternative: Without DefProf (Manual Copy) / DefProf 없이 수동 복사
+
+```powershell
+# 기존 Default Profile 백업
+Rename-Item "C:\Users\Default" "C:\Users\Default.bak"
+
+# 프로필 복사 (숨김/시스템 파일 포함)
+robocopy "C:\Users\작업계정" "C:\Users\Default" /E /COPYALL /XJ `
+    /XD "AppData\Local\Temp" /XF "NTUSER.DAT.LOG*" "ntuser.dat.LOG*"
+
+# 레지스트리 하이브 복사
+reg load HKU\TempHive "C:\Users\작업계정\NTUSER.DAT"
+reg save HKU\TempHive "C:\Users\Default\NTUSER.DAT" /y
+reg unload HKU\TempHive
+
+# 권한 재설정
+icacls "C:\Users\Default" /reset /T /C
+```
+
+> **Recommendation**: 수동 복사는 SID 잔존, 권한 문제 리스크가 있으므로 **DefProf 또는 sysprep CopyProfile 방식을 권장**합니다.
+
+### Automation Script / 자동화 스크립트
+
+이 절차를 자동화한 PowerShell 스크립트가 제공됩니다:
+
+- 위치: `docs/procedures/Update-DefaultProfile.ps1`
+- 사용법:
+  ```powershell
+  # 1단계: FSLogix 비활성화
+  .\Update-DefaultProfile.ps1 -Action Prepare
+
+  # 2단계: 작업 계정 로그인 → 커스터마이징 → 로그아웃 → 다른 Admin으로 로그인
+  .\Update-DefaultProfile.ps1 -Action Apply -SourceUser "DOMAIN\adminuser"
+  ```
+
+### Key Rules / 핵심 규칙
+
+| Rule | Description |
+|------|-------------|
+| FSLogix 비활성화 먼저 | Master VM 작업 시 항상 `Enabled=0` 상태에서 진행 |
+| 다른 계정에서 DefProf 실행 | 복사 대상 프로필이 로그아웃(언로드) 상태여야 함 |
+| 작업 완료 후 FSLogix 재활성화 | `Enabled=1` 복원 후 스냅샷 |
+| Built-in Administrator 주의 | sysprep CopyProfile은 SID-500 프로필만 복사 |
+
+---
+
+## 8. Logoff Script / redirections.xml Not Working — Troubleshooting
+
+> GPO 로그오프 스크립트 또는 FSLogix redirections.xml이 적용되지 않는 경우의 진단 가이드입니다.
+>
+> Troubleshooting guide for GPO logoff scripts or FSLogix redirections.xml not taking effect in Instant Clone environments.
+
+### Symptom / 증상
+
+- `rsop.msc`에서 로그오프 스크립트가 정상 표시되지만 실제 실행되지 않음
+- `redirections.xml`에 정의한 Exclude 폴더가 VHD에 계속 포함됨
+- 로그오프 후 사용자 데이터가 초기화되지 않음
+
+### Cause 1: PowerShell Execution Policy (Most Common) / 실행 정책 차단
+
+GPO 로그오프 스크립트의 `.ps1` 파일은 기본 실행 정책(`Restricted`)에 의해 **조용히 차단**됩니다.
+
+```powershell
+# 현재 실행 정책 확인
+Get-ExecutionPolicy -List
+```
+
+**Fix — GPO로 실행 정책 변경:**
+```
+Computer Configuration > Administrative Templates > Windows Components > Windows PowerShell
+  → "Turn on Script Execution" → Enabled → "Allow all scripts"
+```
+
+### Cause 2: GPO Script Invocation Method / 스크립트 호출 방식 오류
+
+GPO Logoff Scripts에 `.ps1`을 직접 등록하면 `cmd.exe`로 실행되어 PowerShell이 호출되지 않을 수 있습니다.
+
+**Incorrect (문제):**
+```
+Script Name:    logoff-cleanup.ps1
+Parameters:     (empty)
+```
+
+**Correct (해결):**
+```
+Script Name:    %SystemRoot%\System32\WindowsPowerShell\v1.0\powershell.exe
+Parameters:     -ExecutionPolicy Bypass -NoProfile -File "C:\Scripts\logoff-cleanup.ps1"
+```
+
+### Cause 3: Network Disconnection at Logoff / 로그오프 시 네트워크 단절
+
+로그오프 시점에 네트워크가 먼저 끊기면 `\\domain\NETLOGON\` 경로의 스크립트를 읽지 못합니다.
+
+**Fix — 스크립트를 Master VM 로컬에 배치:**
+```powershell
+# Master VM에 스크립트 로컬 복사
+New-Item -Path "C:\Scripts" -ItemType Directory -Force
+Copy-Item "\\domain\NETLOGON\logoff-cleanup.ps1" "C:\Scripts\logoff-cleanup.ps1"
+
+# GPO에서 로컬 경로로 참조
+# Parameters: -ExecutionPolicy Bypass -NoProfile -File "C:\Scripts\logoff-cleanup.ps1"
+```
+
+### Cause 4: FSLogix VHD Unmount Timing / VHD 언마운트 타이밍
+
+FSLogix는 로그오프 시 VHD를 언마운트합니다. 로그오프 스크립트 실행 시점에 이미 VHD가 분리되면 `$env:USERPROFILE` 경로가 무효화됩니다.
+
+```
+로그오프 시작 → FSLogix VHD 언마운트 → 로그오프 스크립트 실행 → $env:USERPROFILE 무효
+```
+
+**이 경우 로그오프 스크립트(D-3)보다 redirections.xml(D-2)이 더 안정적입니다.**
+
+### Cause 5: GPO Overriding Local Registry / GPO가 로컬 레지스트리를 덮어쓰는 경우
+
+FSLogix 설정을 로컬 레지스트리(`HKLM:\SOFTWARE\FSLogix\Profiles`)로 직접 했는데, GPO에서도 FSLogix 정책을 배포하고 있으면 **GPO 정책 경로가 우선**합니다. 두 경로의 VHDLocations가 다르면 redirections.xml 위치도 달라집니다.
+
+```powershell
+# 로컬 레지스트리 설정 (수동)
+Get-ItemProperty "HKLM:\SOFTWARE\FSLogix\Profiles"
+
+# GPO 정책 설정 (이쪽이 우선!)
+Get-ItemProperty "HKLM:\SOFTWARE\Policies\FSLogix\Profiles" -ErrorAction SilentlyContinue
+```
+
+**GPO 쪽에 VHDLocations가 설정되어 있으면 그 경로의 루트에 redirections.xml을 배치해야 합니다.**
+
+### Cause 6: RedirXMLSourceFolder Registry Override / RedirXMLSourceFolder 레지스트리
+
+FSLogix는 기본적으로 VHDLocations 경로에서 redirections.xml을 읽지만, `RedirXMLSourceFolder` 레지스트리가 설정되어 있으면 **그 경로를 우선**합니다.
+
+```powershell
+# 이 값이 설정되어 있으면 VHDLocations 루트 대신 이 경로에서 읽음
+(Get-ItemProperty "HKLM:\SOFTWARE\FSLogix\Profiles").RedirXMLSourceFolder
+(Get-ItemProperty "HKLM:\SOFTWARE\Policies\FSLogix\Profiles" -EA SilentlyContinue).RedirXMLSourceFolder
+```
+
+- 값이 있으면 → 해당 경로에 redirections.xml을 배치해야 함
+- 값이 없으면 → VHDLocations 루트가 맞음
+
+### Cause 7: redirections.xml Location Error / 파일 위치 오류
+
+redirections.xml은 반드시 **실제 적용되는 VHDLocations 경로(또는 RedirXMLSourceFolder)의 루트**에 있어야 합니다.
+
+```powershell
+# 실제 적용되는 경로 확인
+$gpo   = Get-ItemProperty "HKLM:\SOFTWARE\Policies\FSLogix\Profiles" -EA SilentlyContinue
+$local = Get-ItemProperty "HKLM:\SOFTWARE\FSLogix\Profiles" -EA SilentlyContinue
+
+# GPO가 있으면 GPO 우선
+$effectiveVHD = if ($gpo -and $gpo.VHDLocations) { $gpo.VHDLocations } else { $local.VHDLocations }
+$effectiveRedir = if ($gpo -and $gpo.RedirXMLSourceFolder) { $gpo.RedirXMLSourceFolder }
+                  elseif ($local.RedirXMLSourceFolder) { $local.RedirXMLSourceFolder }
+                  else { $effectiveVHD }
+
+Write-Host "redirections.xml should be at: $effectiveRedir\redirections.xml"
+Test-Path "$effectiveRedir\redirections.xml"
+```
+
+```
+# 정상
+VHDLocations = \\fileserver\profiles$
+redirections.xml 위치: \\fileserver\profiles$\redirections.xml        (O)
+
+# 오류 — 사용자 폴더 안에 넣으면 인식 안됨
+redirections.xml 위치: \\fileserver\profiles$\user1\redirections.xml  (X)
+```
+
+### Cause 8: redirections.xml Syntax or Encoding Error / XML 문법 및 인코딩 오류
+
+```powershell
+# XML 파싱 테스트
+[xml]$xml = Get-Content "\\fileserver\profiles$\redirections.xml"
+$xml.FrxProfileFolderRedirection.Exclude | Format-Table
+```
+
+에러 발생 시 인코딩, 태그 닫힘, 특수문자 이스케이프를 확인하세요.
+
+```powershell
+# 인코딩 확인 (BOM 여부)
+$bytes = [System.IO.File]::ReadAllBytes("\\fileserver\profiles$\redirections.xml")
+Write-Host "First 3 bytes: $($bytes[0]) $($bytes[1]) $($bytes[2])"
+# UTF-8 BOM (239 187 191) → BOM 없는 UTF-8로 다시 저장 필요
+# UTF-16 LE (255 254) → UTF-8로 변환 필요
+```
+
+### Cause 9: FSLogix Version Bug / FSLogix 구버전 버그
+
+구버전 FSLogix에서 redirections.xml 관련 버그가 있었습니다.
+
+```powershell
+# FSLogix 버전 확인
+(Get-Item "C:\Program Files\FSLogix\Apps\frx.exe").VersionInfo.FileVersion
+```
+
+**2210 hotfix 1 (2.9.8612.60056) 이상** 권장. 그 이하 버전은 redirections.xml 파싱 관련 알려진 이슈가 있습니다.
+
+### Diagnostic: Debug Logging / 디버그 로그 추가
+
+로그오프 스크립트 맨 위에 추가하여 실행 여부를 확인합니다:
+
+```powershell
+# logoff-cleanup.ps1 맨 위에 추가
+$logFile = "C:\ProgramData\FSLogix\Logs\cleanup-debug.log"
+Add-Content -Path $logFile -Value "=== Script started: $env:USERNAME at $(Get-Date) ==="
+Add-Content -Path $logFile -Value "USERPROFILE: $env:USERPROFILE"
+Add-Content -Path $logFile -Value "Profile exists: $(Test-Path $env:USERPROFILE)"
+
+# ... 기존 정리 로직 ...
+
+Add-Content -Path $logFile -Value "=== Script completed: $(Get-Date) ==="
+```
+
+로그오프 후 확인:
+```powershell
+# 파일 없음 → 스크립트 자체가 실행 안 됨 (Cause 1, 2, 3 점검)
+# 파일 있음 → 스크립트 실행됐지만 삭제 실패 (Cause 4 — VHD 타이밍 문제)
+Get-Content "C:\ProgramData\FSLogix\Logs\cleanup-debug.log"
+```
+
+### Diagnostic: redirections.xml Verification / 적용 확인
+
+```powershell
+# 로그인 세션에서 redirect 동작 확인
+frx list-redirects
+
+# FSLogix 로그에서 redirections 처리 확인
+Select-String -Path "C:\ProgramData\FSLogix\Logs\Profile*.log" -Pattern "redirect" -Context 3
+```
+
+- `Processing redirections.xml` 로그 있음 → 정상 인식
+- redirect 관련 로그 없음 → 파일 위치 또는 파일명 오류
+
+### Diagnosis Result Summary / 진단 결과별 조치
+
+| Diagnosis Result | Cause | Action |
+|------------------|-------|--------|
+| cleanup-debug.log 파일 없음 | 스크립트 미실행 | Cause 1, 2, 3 순서대로 점검 |
+| cleanup-debug.log 있지만 삭제 안됨 | VHD 언마운트 타이밍 | redirections.xml(D-2) 방식으로 전환 |
+| GPO VHDLocations ≠ 로컬 VHDLocations | GPO가 경로 덮어씀 | GPO 경로 루트에 redirections.xml 배치 (Cause 5) |
+| RedirXMLSourceFolder 설정됨 | XML 검색 경로 다름 | 해당 경로에 redirections.xml 배치 (Cause 6) |
+| FSLogix 로그에 redirect 없음 | redirections.xml 위치/경로 오류 | 실제 적용 경로 확인 후 재배치 (Cause 7) |
+| FSLogix 로그에 redirect 에러 | XML 문법/인코딩 오류 | XML 파싱 + 인코딩 테스트 후 수정 (Cause 8) |
+| `frx list-redirects` 항목 없음 | redirections.xml 미인식 | 파일명, 경로, 인코딩, 버전 확인 |
+| FSLogix 버전 < 2.9.8612 | 구버전 버그 | FSLogix 업데이트 (Cause 9) |
+
+### Automated Diagnostic Script / 자동 진단 스크립트
+
+위 원인을 한번에 점검하는 자동 진단 스크립트가 제공됩니다:
+
+- 위치: `docs/procedures/fslogix-redirections-diagnostic.ps1`
+- VDI 세션에 로그인한 상태에서 관리자 PowerShell로 실행
+- 점검 항목: FSLogix 버전, 로컬 vs GPO 레지스트리 비교, 실제 적용 경로 판단, redirections.xml 존재/인코딩/파싱, `frx list-redirects`, FSLogix 로그 분석
+- 결과가 화면 출력 + `C:\ProgramData\FSLogix\Logs\redirections-diagnostic-날짜.txt` 에 자동 저장
+
+```powershell
+# VDI 세션에서 관리자 PowerShell로 실행
+.\fslogix-redirections-diagnostic.ps1
+```
+
+### Recommendation / 권장사항
+
+```
+우선순위:
+1. 자동 진단 스크립트로 실제 적용 경로 확인
+2. redirections.xml(D-2)을 올바른 경로에 배치 → 이것만으로 충분
+3. 부족한 경우에만 로그오프 스크립트(D-3) 보조 추가
+```
+
+로그오프 스크립트는 VHD 언마운트 타이밍, 실행 정책, 네트워크 단절 등 불안정 요소가 많으므로 **redirections.xml 방식을 우선 적용**하는 것을 권장합니다.
+
+---
+
+## 9. Horizon Instant Clone Optimization Checklist
 
 ### Master Image Preparation
 
@@ -751,7 +1067,7 @@ Q: "Updating Store App" message 제거가 필요한가?
 
 ---
 
-## 8. Diagnostic Commands
+## 10. Diagnostic Commands
 
 ### AppX Package Diagnostics
 
@@ -808,7 +1124,7 @@ Get-WmiObject Win32_UserProfile | Where-Object { -not $_.Special } |
 
 ---
 
-## 9. Log File Locations
+## 11. Log File Locations
 
 | Component | Log Path | Description |
 |-----------|----------|-------------|
@@ -836,7 +1152,7 @@ Get-WinEvent -LogName "Microsoft-Windows-User Profile Service/Operational" -MaxE
 
 ---
 
-## 10. References
+## 12. References
 
 ### VMware / Broadcom
 
