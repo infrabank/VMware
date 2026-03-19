@@ -322,6 +322,20 @@ log_data = diag_mgr.BrowseDiagnosticLog(key="hostd", start=500)
 
 ---
 
+## Horizon VDI & Desktop Optimization
+
+| Reference | Title | Use Case |
+|-----------|-------|----------|
+| [VMware OSOT (Flings)](https://flings.vmware.com/vmware-os-optimization-tool) | VMware OS Optimization Tool | VDI 마스터 이미지 Windows 최적화 (Win10/11) |
+| [KB 2150337](https://knowledge.broadcom.com/external/article/2150337) | Optimizing Windows for Horizon Virtual Desktops | Horizon VDI Windows 최적화 가이드 |
+| [KB 2032056](https://knowledge.broadcom.com/external/article/2032056) | Creating optimized Windows images for Horizon | Horizon 마스터 이미지 생성 가이드 |
+| [FSLogix Documentation](https://learn.microsoft.com/en-us/fslogix/) | Microsoft FSLogix official documentation | FSLogix 프로필 컨테이너 구성 참조 |
+| [FSLogix Download](https://aka.ms/fslogix-latest) | Latest FSLogix agent download | FSLogix 최신 에이전트 다운로드 |
+| [FSLogix Configuration Reference](https://learn.microsoft.com/en-us/fslogix/reference-configuration-settings) | FSLogix Profile Container registry settings | FSLogix 레지스트리 설정 레퍼런스 |
+| [Windows 11 VDI Optimization](https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/vdi-optimization-guide) | Microsoft VDI optimization guide for Windows | Windows VDI 최적화 공식 가이드 |
+
+---
+
 ## Quick Diagnostic Commands
 
 ```bash

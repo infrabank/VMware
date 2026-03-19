@@ -198,7 +198,8 @@ When answering questions, consult the detailed troubleshooting guides in `docs/k
 | `backup-disaster-recovery.md` | VADP, CBT, snapshot-based backup, vCenter VAMI backup, vSphere Replication, SRM basics, Veeam/Commvault integration issues, recovery procedures |
 | `vmware-tools-management.md` | VMware Tools version compatibility, installation (Windows/Linux), open-vm-tools, PVSCSI/VMXNET3 drivers, Guest OS Customization, quiescing (VSS/pre-freeze), troubleshooting, vLCM Tools management |
 | `nsx-troubleshooting.md` | NSX-T architecture, API authentication (Basic/Cert/vIDM), DFW backup/restore/per-VM rules/stats, VM tag management, LB cert replacement, transport node troubleshooting, TEP/tunnel diagnostics, Terraform/Ansible IaC patterns |
-| `common-kb-articles.md` | Curated VMware KB article index (build ref, certs, host, VM, storage, network, vLCM, patching, HA/DRS, backup/DR, VMware Tools, AIOps, PowerCLI, NSX-T) |
+| `horizon-vdi-troubleshooting.md` | Horizon Instant Clone, Windows 11 AppX provisioning "Updating Store App" issue, FSLogix Profile Container, master image optimization, Win10 vs Win11 AppX differences, VDI guest OS tuning |
+| `common-kb-articles.md` | Curated VMware KB article index (build ref, certs, host, VM, storage, network, vLCM, patching, HA/DRS, backup/DR, VMware Tools, AIOps, PowerCLI, NSX-T, Horizon VDI) |
 
 Use these documents as reference material when formulating answers. Read the relevant KB document before providing detailed procedures.
 
